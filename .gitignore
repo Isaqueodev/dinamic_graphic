@@ -1,0 +1,21 @@
+# Sistema Operacional
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Node (se usar npm/node)
+node_modules/
+package-lock.json
+
+# Arquivos temporários
+*.tmp
+*.log
+*.bak
+~*

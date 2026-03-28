@@ -1122,21 +1122,27 @@
     // Auto-load CSV on page load
     function autoLoadCSV() {
       const csvFileName = 'Pesquisa_ Meios de Transporte (respostas) - Respostas ao formulário 1.csv';
-
-      console.log('🔄 Tentando carregar CSV automaticamente...');
+      
+      console.log('🔄 Tentando carregar CSV de: ' + csvFileName);
+      console.log('   URL completa: ' + window.location.origin + window.location.pathname + csvFileName);
 
       fetch(csvFileName)
         .then(response => {
+          console.log('📡 Resposta fetch: status=' + response.status);
           if (!response.ok) {
-            console.warn('⚠️ CSV não encontrado em: ' + csvFileName);
+            console.error('❌ Erro HTTP ' + response.status + ': ' + response.statusText);
+            console.log('   Tente fazer upload manual do arquivo CSV no dashboard');
             return null;
           }
           return response.text();
         })
         .then(csv => {
-          if (!csv) return;
+          if (!csv) {
+            console.error('❌ Resposta vazia do servidor');
+            return;
+          }
 
-          console.log('✓ CSV carregado com sucesso!');
+          console.log('✓ CSV carregado: ' + csv.length + ' caracteres');
           globalData = parseCSV(csv);
 
           if (globalData.length > 0) {
@@ -1151,16 +1157,23 @@
 
             // Atualizar visualizações
             updateDashboard();
-            console.log('✓ Dashboard atualizado automaticamente');
+            console.log('✓ Dashboard atualizado automaticamente com ' + globalData.length + ' registros');
 
             // Dispatch event
             window.dispatchEvent(new Event('csvLoaded'));
           } else {
-            console.error('❌ Falha ao parsear CSV');
+            console.error('❌ Nenhum registro parseado do CSV');
           }
         })
         .catch(error => {
-          console.warn('⚠️ Erro ao carregar CSV:', error.message);
+          console.error('❌ Erro ao carregar CSV:');
+          console.error('   Tipo: ' + error.name);
+          console.error('   Mensagem: ' + error.message);
+          console.log('');
+          console.log('💡 Soluções:');
+          console.log('   1. Verifique se o arquivo CSV existe no repositório');
+          console.log('   2. Use o botão "Carregar CSV" no topo para upload manual');
+          console.log('   3. No GitHub Pages, o arquivo pode estar em: /dinamic_graphic/Pesquisa_...');
         });
     }
 

@@ -1118,6 +1118,60 @@
     document.getElementById('transportFilter').addEventListener('change', function (e) {
       updateDashboard();
     });
+
+    // Auto-load CSV on page load
+    function autoLoadCSV() {
+      const csvFileName = 'Pesquisa_ Meios de Transporte (respostas) - Respostas ao formulário 1.csv';
+
+      console.log('🔄 Tentando carregar CSV automaticamente...');
+
+      fetch(csvFileName)
+        .then(response => {
+          if (!response.ok) {
+            console.warn('⚠️ CSV não encontrado em: ' + csvFileName);
+            return null;
+          }
+          return response.text();
+        })
+        .then(csv => {
+          if (!csv) return;
+
+          console.log('✓ CSV carregado com sucesso!');
+          globalData = parseCSV(csv);
+
+          if (globalData.length > 0) {
+            filteredData = globalData.slice();
+
+            // Mostrar dashboard
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('filterContainer').style.display = 'block';
+            document.getElementById('kpiSection').style.display = 'grid';
+            document.getElementById('chartsSection').style.display = 'grid';
+            document.getElementById('tableSection').style.display = 'block';
+
+            // Atualizar visualizações
+            updateDashboard();
+            console.log('✓ Dashboard atualizado automaticamente');
+
+            // Dispatch event
+            window.dispatchEvent(new Event('csvLoaded'));
+          } else {
+            console.error('❌ Falha ao parsear CSV');
+          }
+        })
+        .catch(error => {
+          console.warn('⚠️ Erro ao carregar CSV:', error.message);
+        });
+    }
+
+    // Carregar CSV automaticamente quando página está pronta
+    if (document.readyState === 'complete') {
+      setTimeout(autoLoadCSV, 500);
+    } else {
+      window.addEventListener('load', () => {
+        setTimeout(autoLoadCSV, 500);
+      });
+    }
   </script>
 
 </body>

@@ -1,1559 +1,1125 @@
-<!doctype html>
-<html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard - Transporte, Custo e Tempo | Ciesa</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      /* Custom Scrollbar */
-      ::-webkit-scrollbar {
-        width: 10px;
-      }
-
-      ::-webkit-scrollbar-track {
-        background: #f1f1f1;
-      }
-
-      ::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, #1e3c72, #7e57c2);
-        border-radius: 5px;
-      }
-
-      ::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(180deg, #0f1e38, #5c3ba0);
-      }
-
-      html {
-        scroll-behavior: smooth;
-      }
-
-      body {
-        font-family: "Poppins", sans-serif;
-        background: linear-gradient(
-          135deg,
-          #1e3c72 0%,
-          #2a5298 50%,
-          #7e57c2 100%
-        );
-        min-height: 100vh;
-        padding: 92px 20px 20px;
-        color: #333;
-      }
-
-      .top-nav {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        z-index: 1000;
-        background: rgba(13, 45, 79, 0.92);
-        backdrop-filter: blur(10px);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-      }
-
-      .top-nav-inner {
-        max-width: 1600px;
-        margin: 0 auto;
-        padding: 12px 20px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 20px;
-      }
-
-      .brand {
-        color: #d8ebff;
-        font-weight: 700;
-        letter-spacing: 0.5px;
-        font-size: 0.95em;
-        white-space: nowrap;
-      }
-
-      .nav-links {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-      }
-
-      .nav-links a {
-        color: #f5fbff;
-        text-decoration: none;
-        font-size: 0.85em;
-        font-weight: 600;
-        letter-spacing: 0.4px;
-        text-transform: uppercase;
-        padding: 9px 14px;
-        border-radius: 999px;
-        transition: background 0.3s ease, transform 0.3s ease;
-      }
-
-      .nav-links a:hover {
-        background: rgba(126, 87, 194, 0.35);
-        transform: translateY(-1px);
-      }
-
-      .container {
-        max-width: 1600px;
-        margin: 0 auto;
-        background: white;
-        border-radius: 20px;
-        box-shadow: 0 20px 80px rgba(0, 0, 0, 0.15);
-        padding: 40px;
-        backdrop-filter: blur(10px);
-      }
-
-      header {
-        text-align: center;
-        margin-bottom: 50px;
-        border-bottom: 2px solid #eee;
-        padding-bottom: 30px;
-      }
-
-      h1 {
-        color: #1e3c72;
-        font-size: 2.8em;
-        font-weight: 800;
-        margin-bottom: 10px;
-        background: linear-gradient(135deg, #1e3c72 0%, #7e57c2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-      }
-
-      .subtitle {
-        color: #666;
-        font-size: 1.15em;
-        font-weight: 300;
-        letter-spacing: 0.5px;
-      }
-
-      .about-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(220px, 1fr));
-        gap: 16px;
-        margin-bottom: 28px;
-      }
-
-      .about-card {
-        scroll-margin-top: 110px;
-        border: 1px solid #d8e1ef;
-        border-radius: 12px;
-        padding: 18px;
-        background: linear-gradient(170deg, #f7faff 0%, #edf3fb 100%);
-        display: none;
-      }
-
-      .about-card.active {
-        display: block;
-        animation: slideInUp 0.5s ease-out;
-        grid-column: 1 / -1;
-        max-width: 500px;
-        margin: 0 auto;
-      }
-
-      .about-card h2 {
-        color: #1e3c72;
-        font-size: 1.05em;
-        margin-bottom: 8px;
-      }
-
-      .about-card p {
-        color: #445166;
-        font-size: 0.9em;
-        line-height: 1.45;
-      }
-
-      .controls {
-        margin-bottom: 40px;
-        display: flex;
-        gap: 15px;
-        flex-wrap: wrap;
-        align-items: center;
-        background: #f8f9fa;
-        padding: 25px;
-        border-radius: 15px;
-        border: 1px solid #e0e0e0;
-      }
-
-      .control-group {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-        flex: 1;
-        min-width: 200px;
-      }
-
-      label {
-        font-weight: 600;
-        color: #333;
-        white-space: nowrap;
-      }
-
-      input[type="file"],
-      select {
-        padding: 12px 16px;
-        border: 2px solid #ddd;
-        border-radius: 10px;
-        font-size: 1em;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-family: "Poppins", sans-serif;
-        background: white;
-        flex: 1;
-        min-width: 150px;
-      }
-
-      input[type="file"]:hover,
-      select:hover {
-        border-color: #7e57c2;
-        background: #f8f9fa;
-      }
-
-      input[type="file"]:focus,
-      select:focus {
-        outline: none;
-        border-color: #7e57c2;
-        box-shadow: 0 0 0 3px rgba(126, 87, 194, 0.1);
-      }
-
-      button {
-        padding: 12px 30px;
-        background: linear-gradient(135deg, #1e3c72 0%, #7e57c2 100%);
-        color: white;
-        border: none;
-        border-radius: 10px;
-        font-size: 1em;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-family: "Poppins", sans-serif;
-        white-space: nowrap;
-        box-shadow: 0 4px 15px rgba(126, 87, 194, 0.3);
-      }
-
-      button:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(126, 87, 194, 0.5);
-      }
-
-      button:active {
-        transform: translateY(-1px);
-      }
-
-      button:active {
-        transform: translateY(-1px);
-      }
-
-      .stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 20px;
-        margin-bottom: 40px;
-      }
-
-      .stat-card {
-        background: white;
-        padding: 30px;
-        border-radius: 15px;
-        text-align: center;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-        border-left: 4px solid;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .stat-card:nth-child(1) {
-        border-left-color: #1e3c72;
-      }
-
-      .stat-card:nth-child(2) {
-        border-left-color: #2a5298;
-      }
-
-      .stat-card:nth-child(3) {
-        border-left-color: #7e57c2;
-      }
-
-      .stat-card:nth-child(4) {
-        border-left-color: #ab47bc;
-      }
-
-      .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-      }
-
-      .stat-card::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: linear-gradient(90deg, #1e3c72, #7e57c2);
-      }
-
-      .stat-label {
-        font-size: 0.95em;
-        color: #666;
-        font-weight: 500;
-        margin-bottom: 10px;
-      }
-
-      .stat-value {
-        font-size: 2.5em;
-        font-weight: 800;
-        background: linear-gradient(135deg, #1e3c72 0%, #7e57c2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin: 10px 0;
-      }
-
-      .charts-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-        gap: 25px;
-        margin-bottom: 40px;
-      }
-
-      .chart-container {
-        background: white;
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-      }
-
-      .chart-container:hover {
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-      }
-
-      .chart-title {
-        font-size: 1.2em;
-        font-weight: 700;
-        color: #1e3c72;
-        margin-bottom: 20px;
-        text-align: center;
-      }
-
-      #pieChart,
-      #barChart,
-      #custoDiarioChart,
-      #tempoChart {
-        width: 100%;
-        height: 400px;
-      }
-
-      .table-container {
-        overflow-x: auto;
-        background: white;
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-        margin-bottom: 30px;
-      }
-
-      .table-container h2 {
-        color: #1e3c72;
-        font-weight: 700;
-        margin-bottom: 25px;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-
-      th {
-        background: linear-gradient(135deg, #1e3c72 0%, #7e57c2 100%);
-        color: white;
-        padding: 16px;
-        text-align: left;
-        font-weight: 700;
-        font-size: 0.95em;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-
-      td {
-        padding: 14px 16px;
-        border-bottom: 1px solid #e8e8e8;
-        color: #555;
-        font-weight: 500;
-      }
-
-      tbody tr {
-        transition: all 0.2s ease;
-      }
-
-      tbody tr:hover {
-        background: #f8f9fa;
-        box-shadow: 0 2px 8px rgba(126, 87, 194, 0.1);
-      }
-
-      tbody tr:nth-child(even) {
-        background: #f8f9fa;
-      }
-
-      tbody tr:nth-child(even):hover {
-        background: #f0f0f5;
-      }
-
-      tbody tr:first-child td:first-child {
-        font-weight: 700;
-        color: #1e3c72;
-      }
-
-      .error {
-        background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
-        border-left: 5px solid #e53935;
-        padding: 18px 20px;
-        border-radius: 10px;
-        color: #c62828;
-        margin-bottom: 25px;
-        display: none;
-        font-weight: 600;
-        box-shadow: 0 4px 12px rgba(229, 57, 53, 0.15);
-      }
-
-      .success {
-        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-        border-left: 5px solid #43a047;
-        padding: 18px 20px;
-        border-radius: 10px;
-        color: #2e7d32;
-        margin-bottom: 25px;
-        display: none;
-        font-weight: 600;
-        box-shadow: 0 4px 12px rgba(67, 160, 71, 0.15);
-      }
-
-      .hidden {
-        display: none;
-      }
-
-      @keyframes slideInUp {
-        from {
-          opacity: 0;
-          transform: translateY(30px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      @keyframes pulse {
-        0%,
-        100% {
-          opacity: 1;
-        }
-        50% {
-          opacity: 0.7;
-        }
-      }
-
-      @keyframes scaleIn {
-        from {
-          opacity: 0;
-          transform: scale(0.8);
-        }
-        to {
-          opacity: 1;
-          transform: scale(1);
-        }
-      }
-
-      #stats {
-        animation: slideInUp 0.6s ease-out;
-      }
-
-      .stat-card {
-        animation: slideInUp 0.6s ease-out backwards;
-      }
-
-      .stat-card:nth-child(1) {
-        animation-delay: 0.1s;
-      }
-
-      .stat-card:nth-child(2) {
-        animation-delay: 0.2s;
-      }
-
-      .stat-card:nth-child(3) {
-        animation-delay: 0.3s;
-      }
-
-      .stat-card:nth-child(4) {
-        animation-delay: 0.4s;
-      }
-
-      #chartsSection {
-        animation: slideInUp 0.8s ease-out;
-      }
-
-      .chart-container {
-        animation: scaleIn 0.6s ease-out;
-      }
-
-      .chart-container:nth-child(1) {
-        animation-delay: 0.2s;
-      }
-
-      .chart-container:nth-child(2) {
-        animation-delay: 0.4s;
-      }
-
-      .chart-container:nth-child(3) {
-        animation-delay: 0.6s;
-      }
-
-      .chart-container:nth-child(4) {
-        animation-delay: 0.8s;
-      }
-
-      .table-container {
-        animation: slideInUp 0.8s ease-out;
-        animation-delay: 1s;
-      }
-
-      tbody tr {
-        animation: slideInUp 0.6s ease-out backwards;
-      }
-
-      tbody tr:nth-child(1) {
-        animation-delay: 1.2s;
-      }
-
-      tbody tr:nth-child(2) {
-        animation-delay: 1.3s;
-      }
-
-      tbody tr:nth-child(3) {
-        animation-delay: 1.4s;
-      }
-
-      tbody tr:nth-child(n + 4) {
-        animation-delay: 1.5s;
-      }
-
-      @media (max-width: 1024px) {
-        body {
-          padding-top: 98px;
-        }
-
-        .container {
-          padding: 30px;
-        }
-
-        h1 {
-          font-size: 2.2em;
-        }
-
-        .about-grid {
-          grid-template-columns: repeat(2, minmax(220px, 1fr));
-        }
-
-        .charts-grid {
-          grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-          gap: 20px;
-        }
-
-        #pieChart,
-        #barChart,
-        #custoDiarioChart,
-        #tempoChart {
-          height: 350px;
-        }
-      }
-
-      @media (max-width: 768px) {
-        body {
-          padding: 132px 10px 10px;
-        }
-
-        .top-nav-inner {
-          padding: 10px 12px;
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 8px;
-        }
-
-        .brand {
-          font-size: 0.85em;
-        }
-
-        .nav-links {
-          width: 100%;
-          justify-content: flex-start;
-          gap: 6px;
-        }
-
-        .nav-links a {
-          font-size: 0.75em;
-          padding: 8px 10px;
-        }
-
-        .container {
-          padding: 20px;
-          border-radius: 12px;
-        }
-
-        h1 {
-          font-size: 1.6em;
-        }
-
-        .about-grid {
-          grid-template-columns: 1fr;
-        }
-
-        header {
-          margin-bottom: 30px;
-          padding-bottom: 20px;
-        }
-
-        .subtitle {
-          font-size: 0.95em;
-        }
-
-        .stats {
-          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-          gap: 15px;
-          margin-bottom: 30px;
-        }
-
-        .stat-card {
-          padding: 20px;
-        }
-
-        .stat-value {
-          font-size: 2em;
-        }
-
-        .stat-label {
-          font-size: 0.85em;
-        }
-
-        .charts-grid {
-          grid-template-columns: 1fr;
-          gap: 20px;
-        }
-
-        .chart-container {
-          padding: 20px;
-        }
-
-        #pieChart,
-        #barChart,
-        #custoDiarioChart,
-        #tempoChart {
-          height: 300px;
-        }
-
-        .controls {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 12px;
-          padding: 20px;
-        }
-
-        .control-group {
-          flex-direction: column;
-          width: 100%;
-        }
-
-        label {
-          width: 100%;
-        }
-
-        input[type="file"],
-        select,
-        button {
-          width: 100%;
-          padding: 14px 16px;
-          font-size: 0.95em;
-        }
-
-        .table-container {
-          padding: 20px;
-          overflow-x: auto;
-        }
-
-        table {
-          font-size: 0.9em;
-        }
-
-        th,
-        td {
-          padding: 10px 12px;
-        }
-
-        .chart-title {
-          font-size: 1.05em;
-        }
-      }
-
-      @media (max-width: 480px) {
-        body {
-          padding-top: 150px;
-        }
-
-        h1 {
-          font-size: 1.3em;
-        }
-
-        .subtitle {
-          font-size: 0.85em;
-        }
-
-        .stats {
-          grid-template-columns: 1fr;
-          gap: 12px;
-        }
-
-        .stat-card {
-          padding: 16px;
-        }
-
-        .stat-value {
-          font-size: 1.6em;
-        }
-
-        .stat-label {
-          font-size: 0.75em;
-        }
-
-        .controls {
-          padding: 15px;
-          gap: 10px;
-        }
-
-        input[type="file"],
-        select,
-        button {
-          font-size: 0.9em;
-          padding: 12px 14px;
-        }
-
-        .table-container {
-          padding: 15px;
-          margin-bottom: 25px;
-        }
-
-        table {
-          font-size: 0.8em;
-        }
-
-        th {
-          padding: 8px 10px;
-        }
-
-        td {
-          padding: 8px 10px;
-        }
-
-        header {
-          margin-bottom: 25px;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <nav class="top-nav" aria-label="Navegação principal">
-      <div class="top-nav-inner">
-        <div class="brand">CIESA | Dashboard de Mobilidade</div>
-        <div class="nav-links">
-          <a href="#about-dashboard">Dashboard</a>
-          <a href="#about-equipe">Equipe</a>
-          <a href="#about-projeto">Projeto</a>
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Análise de Meios de Transporte - CIESA</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet" />
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "inverse-primary": "#494bd7",
+            "secondary-fixed-dim": "#ceb9ff",
+            "secondary-fixed": "#dac9ff",
+            "on-tertiary-container": "#005a3c",
+            "surface": "#060e20",
+            "surface-dim": "#060e20",
+            "on-tertiary-fixed": "#00452d",
+            "primary-dim": "#6063ee",
+            "tertiary-fixed": "#69f6b8",
+            "surface-container-highest": "#192540",
+            "secondary-dim": "#8455ef",
+            "outline": "#6d758c",
+            "tertiary": "#9bffce",
+            "inverse-on-surface": "#4d556b",
+            "on-secondary-fixed": "#40009b",
+            "error-dim": "#d73357",
+            "primary-fixed-dim": "#8387ff",
+            "outline-variant": "#40485d",
+            "error": "#ff6e84",
+            "primary-container": "#9396ff",
+            "on-secondary-container": "#d9c8ff",
+            "on-secondary-fixed-variant": "#5f28c8",
+            "on-tertiary-fixed-variant": "#006544",
+            "on-primary": "#0f00a4",
+            "error-container": "#a70138",
+            "surface-container-high": "#141f38",
+            "on-surface-variant": "#a3aac4",
+            "tertiary-fixed-dim": "#58e7ab",
+            "on-primary-fixed": "#000000",
+            "surface-container-lowest": "#000000",
+            "on-surface": "#dee5ff",
+            "secondary-container": "#5516be",
+            "primary": "#a3a6ff",
+            "surface-container": "#0f1930",
+            "surface-bright": "#1f2b49",
+            "surface-container-low": "#091328",
+            "on-primary-container": "#0a0081",
+            "on-secondary": "#280067",
+            "background": "#060e20",
+            "on-background": "#dee5ff",
+            "surface-tint": "#a3a6ff",
+            "secondary": "#ac8aff",
+            "primary-fixed": "#9396ff",
+            "on-error": "#490013",
+            "tertiary-dim": "#58e7ab",
+            "tertiary-container": "#69f6b8",
+            "on-primary-fixed-variant": "#0e009d",
+            "surface-variant": "#192540",
+            "on-tertiary": "#006443",
+            "inverse-surface": "#faf8ff",
+            "on-error-container": "#ffb2b9"
+          },
+          fontFamily: {
+            "headline": ["Manrope"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          },
+          borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+        },
+      },
+    }
+  </script>
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
+    .glass-card {
+      background: rgba(15, 25, 48, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    .nav-link {
+      position: relative;
+      padding-bottom: 4px;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #a3a6ff;
+      transition: width 0.3s ease;
+    }
+
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    .nav-link.active::after {
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body class="bg-surface text-on-surface font-body">
+
+  <!-- Navigation -->
+  <nav class="fixed top-0 w-full z-50 bg-[#060e20]/80 backdrop-blur-md border-b border-outline-variant/20">
+    <div class="max-w-7xl mx-auto px-8 py-4 flex items-center justify-between">
+      <!-- Logo -->
+      <div class="flex items-center gap-3 cursor-pointer" onclick="window.scrollTo(0,0)">
+        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+          <span class="material-symbols-outlined text-sm text-on-primary-fixed"
+            style="font-variation-settings: 'FILL' 1;">analytics</span>
+        </div>
+        <div class="hidden sm:block">
+          <h1 class="font-headline text-lg font-bold text-white">Transportes CIESA</h1>
+          <p class="text-[10px] text-slate-500">Mobilidade & Análise</p>
         </div>
       </div>
-    </nav>
 
-    <div class="container" id="dashboard">
-      <header>
-        <h1>📊 Dashboard de Deslocamento - Ciesa</h1>
-        <p class="subtitle">
-          Análise de Transporte, Custo Diário e Tempo dos Aluno(a)s
+      <!-- Menu -->
+      <div class="hidden md:flex items-center gap-8">
+        <a href="#hero" class="nav-link text-sm text-slate-400 hover:text-primary transition-colors">Início</a>
+        <a href="#metodologia"
+          class="nav-link text-sm text-slate-400 hover:text-primary transition-colors">Metodologia</a>
+        <a href="#insights" class="nav-link text-sm text-slate-400 hover:text-primary transition-colors">Dados</a>
+        <a href="#dashboard" class="nav-link text-sm text-slate-400 hover:text-primary transition-colors">Dashboard</a>
+      </div>
+
+      <!-- CTA Button -->
+      <button onclick="document.getElementById('csvFile').click()"
+        class="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-secondary text-on-primary-fixed font-semibold text-sm hover:opacity-90 transition-opacity">
+        <span class="material-symbols-outlined text-sm">upload_file</span>
+        <span class="hidden sm:inline">Carregar CSV</span>
+      </button>
+      <input type="file" id="csvFile" accept=".csv" class="hidden" />
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section id="hero" class="pt-32 pb-20 px-8 min-h-screen flex flex-col justify-center">
+    <div class="max-w-6xl mx-auto">
+      <div class="mb-8">
+        <span
+          class="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider mb-6">Pesquisa
+          Estatística</span>
+        <h2 class="font-headline text-5xl md:text-6xl font-extrabold text-white mb-6 leading-tight">
+          Mapeando a Mobilidade dos Alunos CIESA
+        </h2>
+        <p class="text-xl text-slate-400 max-w-2xl mb-8 leading-relaxed">
+          Análise completa dos meios de transporte, tempos de deslocamento e custos enfrentados pelos estudantes da
+          instituição. Uma visão data-driven da mobilidade urbana.
         </p>
-      </header>
-
-      <section class="about-grid" aria-label="Sobre o dashboard">
-        <div class="about-card" id="about-dashboard">
-          <h2>Dashboard</h2>
-          <p>
-            Visualize dados de mobilidade estudantil em tempo real. Este painel consolida informações sobre meios de transporte, custos diários e tempo de deslocamento dos estudantes, oferecendo gráficos e tabelas detalhadas para análise rápida e eficiente.
-          </p>
-        </div>
-        <div class="about-card" id="about-equipe">
-          <h2>Equipe</h2>
-          <p>
-            Acadêmicos do 3º período de Análise e Desenvolvimento de Sistemas. Pedro Isaque e Luchie Bonates responsáveis pela coleta, processamento e análise de dados de mobilidade estudantil, fornecendo uma visão clara sobre padrões de deslocamento entre casa e faculdade.
-          </p>
-        </div>
-        <div class="about-card" id="about-projeto">
-          <h2>Projeto</h2>
-          <p>
-            O objetivo deste projeto é compreender os padrões de mobilidade dos estudantes entre casa e faculdade. Analisamos diferentes meios de transporte, custos mensais e tempos de deslocamento para identificar tendências e subsidiar decisões sobre políticas de mobilidade estudantil.
-          </p>
-        </div>
-      </section>
-
-      <div class="error" id="errorMsg"></div>
-      <div class="success" id="successMsg"></div>
-
-      <div class="controls">
-        <div class="control-group">
-          <label for="csvFile">📁 Carregar CSV do Google Formulários:</label>
-          <input type="file" id="csvFile" accept=".csv" />
-        </div>
-        <button onclick="loadCSV()">📥 Carregar Dados</button>
       </div>
 
-      <div id="stats" class="stats hidden">
-        <div class="stat-card">
-          <div class="stat-label">Total de Respostas</div>
-          <div class="stat-value" id="totalRespostas">0</div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+        <div class="glass-card rounded-xl border border-white/5 p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center">
+              <span class="material-symbols-outlined text-primary">people</span>
+            </div>
+            <h3 class="font-headline font-bold text-white">35 Respondentes</h3>
+          </div>
+          <p class="text-sm text-slate-500">Amostra coletada entre alunos da instituição CIESA com critério
+            não-probabilístico por conveniência.</p>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Tipos de Transportes</div>
-          <div class="stat-value" id="tiposTransportes">0</div>
+
+        <div class="glass-card rounded-xl border border-white/5 p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-lg bg-secondary/20 flex items-center justify-center">
+              <span class="material-symbols-outlined text-secondary">location_on</span>
+            </div>
+            <h3 class="font-headline font-bold text-white">Múltiplos Modais</h3>
+          </div>
+          <p class="text-sm text-slate-500">Análise de 5 principais meios: ônibus, carro próprio, a pé, moto e
+            carona.</p>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Custo Diário Médio</div>
-          <div class="stat-value" id="custoDiarioMedio">R$ 0,00</div>
+
+        <div class="glass-card rounded-xl border border-white/5 p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-lg bg-tertiary/20 flex items-center justify-center">
+              <span class="material-symbols-outlined text-tertiary">insights</span>
+            </div>
+            <h3 class="font-headline font-bold text-white">3 Variáveis</h3>
+          </div>
+          <p class="text-sm text-slate-500">Transporte principal, tempo de deslocamento e custo mensal coletados via
+            formulário online.</p>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Tempo Médio de Deslocamento</div>
-          <div class="stat-value" id="tempoMedio">-</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Metodologia Section -->
+  <section id="metodologia" class="py-20 px-8 bg-surface-container/50">
+    <div class="max-w-6xl mx-auto">
+      <div class="mb-16">
+        <h3 class="font-headline text-4xl font-extrabold text-white mb-4">Metodologia</h3>
+        <p class="text-slate-400 max-w-3xl">Como foi realizada a pesquisa de mobilidade urbana entre os estudantes CIESA
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+        <div class="glass-card rounded-xl border border-white/5 p-8">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+              <span class="material-symbols-outlined text-primary text-xl">groups</span>
+            </div>
+            <h4 class="font-headline text-xl font-bold text-white">População e Amostra</h4>
+          </div>
+          <ul class="space-y-4 text-sm text-slate-400">
+            <li class="flex gap-3">
+              <span class="text-primary font-bold">•</span>
+              <span><strong class="text-white">População:</strong> Todos os alunos da CIESA que realizam deslocamento
+                até à faculdade</span>
+            </li>
+            <li class="flex gap-3">
+              <span class="text-primary font-bold">•</span>
+              <span><strong class="text-white">Amostra:</strong> 35 alunos</span>
+            </li>
+            <li class="flex gap-3">
+              <span class="text-primary font-bold">•</span>
+              <span><strong class="text-white">Método:</strong> Amostragem não-probabilística por conveniência</span>
+            </li>
+            <li class="flex gap-3">
+              <span class="text-primary font-bold">•</span>
+              <span><strong class="text-white">Critério:</strong> Alunos matriculados que realizam deslocamento até à
+                instituição</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="glass-card rounded-xl border border-white/5 p-8">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 rounded-lg bg-secondary/20 flex items-center justify-center">
+              <span class="material-symbols-outlined text-secondary text-xl">assignment_turned_in</span>
+            </div>
+            <h4 class="font-headline text-xl font-bold text-white">Método de Coleta</h4>
+          </div>
+          <ul class="space-y-4 text-sm text-slate-400">
+            <li class="flex gap-3">
+              <span class="text-secondary font-bold">•</span>
+              <span><strong class="text-white">Instrumento:</strong> Questionário online via Google Formulários</span>
+            </li>
+            <li class="flex gap-3">
+              <span class="text-secondary font-bold">•</span>
+              <span><strong class="text-white">Distribuição:</strong> Link digital para alunos da instituição</span>
+            </li>
+            <li class="flex gap-3">
+              <span class="text-secondary font-bold">•</span>
+              <span><strong class="text-white">Tipo:</strong> Preenchimento voluntário e anônimo</span>
+            </li>
+            <li class="flex gap-3">
+              <span class="text-secondary font-bold">•</span>
+              <span><strong class="text-white">Formato:</strong> Export em CSV do Google Sheets</span>
+            </li>
+          </ul>
         </div>
       </div>
 
-      <div id="chartsSection" class="hidden">
-        <div class="charts-grid">
-          <div class="chart-container">
-            <div class="chart-title">Distribuição de Meios de Transporte</div>
-            <div id="pieChart"></div>
+      <div>
+        <h4 class="font-headline text-2xl font-bold text-white mb-6">Variáveis Coletadas</h4>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="glass-card rounded-xl border border-white/5 p-6">
+            <div class="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold mb-4">Variável
+              1</div>
+            <h5 class="font-headline text-lg font-bold text-white mb-3">Meio de Transporte</h5>
+            <ul class="text-sm text-slate-400 space-y-2">
+              <li><strong class="text-white">Tipo:</strong> Qualitativa nominal</li>
+              <li><strong class="text-white">Categoria:</strong> Ônibus, carro próprio, a pé, moto, rides, carona</li>
+              <li><strong class="text-white">Análise:</strong> Distribuição de frequências</li>
+            </ul>
           </div>
-          <div class="chart-container">
-            <div class="chart-title">Frequência por Transporte</div>
-            <div id="barChart"></div>
+
+          <div class="glass-card rounded-xl border border-white/5 p-6">
+            <div class="inline-block px-3 py-1 rounded-full bg-secondary/10 text-secondary text-xs font-bold mb-4">
+              Variável 2</div>
+            <h5 class="font-headline text-lg font-bold text-white mb-3">Tempo de Deslocamento</h5>
+            <ul class="text-sm text-slate-400 space-y-2">
+              <li><strong class="text-white">Tipo:</strong> Quantitativa (intervalos)</li>
+              <li><strong class="text-white">Escala:</strong> 15 a 30 min | 30 min a 1h | 1h a 2h | >2h</li>
+              <li><strong class="text-white">Análise:</strong> Tempo médio por modal</li>
+            </ul>
           </div>
-          <div class="chart-container">
-            <div class="chart-title">Custo Diário por Transporte</div>
-            <div id="custoDiarioChart"></div>
-          </div>
-          <div class="chart-container">
-            <div class="chart-title">Tempo de Deslocamento por Transporte</div>
-            <div id="tempoChart"></div>
+
+          <div class="glass-card rounded-xl border border-white/5 p-6">
+            <div class="inline-block px-3 py-1 rounded-full bg-tertiary/10 text-tertiary text-xs font-bold mb-4">
+              Variável 3</div>
+            <h5 class="font-headline text-lg font-bold text-white mb-3">Custo Mensalidade</h5>
+            <ul class="text-sm text-slate-400 space-y-2">
+              <li><strong class="text-white">Tipo:</strong> Quantitativa contínua</li>
+              <li><strong class="text-white">Unidade:</strong> R$ (moeda local)</li>
+              <li><strong class="text-white">Conversão:</strong> Dividido por ~20 dias úteis</li>
+            </ul>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
 
-        <div class="table-container">
-          <h2 style="margin-bottom: 20px; color: #333">📋 Dados Detalhados</h2>
-          <table id="dataTable">
+  <!-- Insights Section -->
+  <section id="insights" class="py-20 px-8">
+    <div class="max-w-6xl mx-auto">
+      <div class="mb-16">
+        <h3 class="font-headline text-4xl font-extrabold text-white mb-4">Dados e Insights</h3>
+        <p class="text-slate-400 max-w-3xl">Estatísticas resumidas da pesquisa com informações sobre respondentes e
+          padrões de deslocamento</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div class="glass-card rounded-xl border border-white/5 p-8 text-center">
+          <h5 class="text-4xl font-headline font-extrabold text-primary mb-2">35</h5>
+          <p class="text-sm text-slate-500">Respondentes da Pesquisa</p>
+          <p class="text-xs text-slate-600 mt-2">Estudantes de diversos cursos</p>
+        </div>
+
+        <div class="glass-card rounded-xl border border-white/5 p-8 text-center">
+          <h5 class="text-4xl font-headline font-extrabold text-secondary mb-2">6</h5>
+          <p class="text-sm text-slate-500">Principais Meios</p>
+          <p class="text-xs text-slate-600 mt-2">Modalidades de transporte</p>
+        </div>
+
+        <div class="glass-card rounded-xl border border-white/5 p-8 text-center">
+          <h5 class="text-4xl font-headline font-extrabold text-tertiary mb-2">~45</h5>
+          <p class="text-sm text-slate-500">Tempo Médio</p>
+          <p class="text-xs text-slate-600 mt-2">Minutos de deslocamento</p>
+        </div>
+
+        <div class="glass-card rounded-xl border border-white/5 p-8 text-center">
+          <h5 class="text-4xl font-headline font-extrabold text-primary mb-2">4/5</h5>
+          <p class="text-sm text-slate-500">Satisfação Média</p>
+          <p class="text-xs text-slate-600 mt-2">Avaliação de acessibilidade</p>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-xl border border-white/5 p-8">
+        <h4 class="font-headline text-xl font-bold text-white mb-6">Distribuição por Curso</h4>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="flex items-center gap-4">
+            <div class="w-2 h-12 rounded-full bg-primary"></div>
+            <div>
+              <p class="font-semibold text-white">Análise e Desenvolvimento de Sistemas</p>
+              <p class="text-sm text-slate-500">~40% dos respondentes</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-2 h-12 rounded-full bg-secondary"></div>
+            <div>
+              <p class="font-semibold text-white">Ciência da Computação</p>
+              <p class="text-sm text-slate-500">~40% dos respondentes</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-2 h-12 rounded-full bg-tertiary"></div>
+            <div>
+              <p class="font-semibold text-white">Direito</p>
+              <p class="text-sm text-slate-500">~15% dos respondentes</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dashboard Section -->
+  <section id="dashboard" class="py-20 px-8">
+    <div class="max-w-7xl mx-auto">
+      <div class="mb-12">
+        <h2 class="font-headline text-4xl font-extrabold text-white tracking-tight mb-2">Dashboard Interativo</h2>
+        <p class="text-slate-400 text-base">Visualização dinâmica dos dados com filtros e gráficos interativos</p>
+      </div>
+
+      <div id="emptyState" class="glass-card rounded-2xl border border-white/5 p-12 mb-8 text-center">
+        <div class="flex flex-col items-center gap-6">
+          <div class="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+            <span class="material-symbols-outlined text-4xl text-primary"
+              style="font-variation-settings: 'FILL' 0;">upload_file</span>
+          </div>
+          <div>
+            <h3 class="font-headline text-2xl font-bold text-white mb-2">Carregue o arquivo CSV</h3>
+            <p class="text-slate-400 max-w-md">Use o botão "Carregar CSV" no topo para visualizar os gráficos e
+              estatísticas interativas.</p>
+          </div>
+          <button onclick="document.getElementById('csvFile').click()"
+            class="mt-4 px-8 py-3 rounded-xl bg-gradient-to-r from-primary to-secondary text-on-primary-fixed font-bold hover:opacity-90 transition-opacity">
+            Selecionar Arquivo
+          </button>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-xl border border-white/5 p-6 mb-8" id="filterContainer" style="display: none;">
+        <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
+          <div class="flex-1">
+            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Filtrar por Meio de
+              Transporte</label>
+            <select id="transportFilter"
+              class="w-full bg-surface-container-low border-none rounded-lg px-4 py-2.5 text-sm focus:ring-1 focus:ring-primary/40 text-on-surface">
+              <option value="">Todos os meios</option>
+              <option value="Ônibus">Ônibus</option>
+              <option value="Carro próprio">Carro próprio</option>
+              <option value="A pé">A pé</option>
+              <option value="Moto">Moto</option>
+              <option value="Aplicativos de transporte">Rides (Uber/99)</option>
+              <option value="Carona">Carona</option>
+            </select>
+          </div>
+          <button onclick="resetFilters()"
+            class="mt-7 px-4 py-2.5 rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface font-semibold text-sm transition-all">
+            Limpar Filtros
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" id="kpiSection" style="display: none;">
+        <div
+          class="glass-card p-6 rounded-xl border border-white/5 hover:bg-surface-bright/40 transition-all duration-300 group">
+          <div class="flex justify-between items-start mb-4">
+            <div class="p-2 bg-primary/10 rounded-lg group-hover:scale-110 transition-transform">
+              <span class="material-symbols-outlined text-primary">survey</span>
+            </div>
+          </div>
+          <p class="text-slate-500 text-xs font-medium mb-1">Total de Respondentes</p>
+          <h3 class="font-headline text-3xl font-extrabold text-white" id="totalRespondents">0</h3>
+        </div>
+
+        <div
+          class="glass-card p-6 rounded-xl border border-white/5 hover:bg-surface-bright/40 transition-all duration-300 group">
+          <div class="flex justify-between items-start mb-4">
+            <div class="p-2 bg-secondary/10 rounded-lg group-hover:scale-110 transition-transform">
+              <span class="material-symbols-outlined text-secondary">local_shipping</span>
+            </div>
+          </div>
+          <p class="text-slate-500 text-xs font-medium mb-1">Meio Mais Popular</p>
+          <h3 class="font-headline text-2xl font-extrabold text-white" id="popularTransport">-</h3>
+        </div>
+
+        <div
+          class="glass-card p-6 rounded-xl border border-white/5 hover:bg-surface-bright/40 transition-all duration-300 group">
+          <div class="flex justify-between items-start mb-4">
+            <div class="p-2 bg-tertiary/10 rounded-lg group-hover:scale-110 transition-transform">
+              <span class="material-symbols-outlined text-tertiary">schedule</span>
+            </div>
+          </div>
+          <p class="text-slate-500 text-xs font-medium mb-1">Tempo Médio (ida)</p>
+          <h3 class="font-headline text-2xl font-extrabold text-white" id="avgTime">-</h3>
+        </div>
+
+        <div
+          class="glass-card p-6 rounded-xl border border-white/5 hover:bg-surface-bright/40 transition-all duration-300 group">
+          <div class="flex justify-between items-start mb-4">
+            <div class="p-2 bg-primary-container/20 rounded-lg group-hover:scale-110 transition-transform">
+              <span class="material-symbols-outlined text-primary">attach_money</span>
+            </div>
+          </div>
+          <p class="text-slate-500 text-xs font-medium mb-1">Satisfação Média</p>
+          <h3 class="font-headline text-2xl font-extrabold text-white" id="avgSatisfaction">-</h3>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8" id="chartsSection" style="display: none;">
+        <div class="glass-card rounded-2xl border border-white/5 p-8">
+          <h4 class="font-headline text-xl font-bold text-white mb-1">Distribuição de Meios</h4>
+          <p class="text-xs text-slate-500 mb-6">Quantidade de respondentes por meio de transporte</p>
+          <div id="transportChart" style="height: 350px;"></div>
+        </div>
+
+        <div class="glass-card rounded-2xl border border-white/5 p-8">
+          <h4 class="font-headline text-xl font-bold text-white mb-1">Nível de Satisfação</h4>
+          <p class="text-xs text-slate-500 mb-6">Avaliação da facilidade de acesso ao campus</p>
+          <div id="satisfactionChart" style="height: 350px;"></div>
+        </div>
+
+        <div class="glass-card rounded-2xl border border-white/5 p-8">
+          <h4 class="font-headline text-xl font-bold text-white mb-1">Tempo de Deslocamento</h4>
+          <p class="text-xs text-slate-500 mb-6">Distribuição temporal dos trajetos ida até campus</p>
+          <div id="timeChart" style="height: 350px;"></div>
+        </div>
+
+        <div class="glass-card rounded-2xl border border-white/5 p-8">
+          <h4 class="font-headline text-xl font-bold text-white mb-1">Distribuição de Custos</h4>
+          <p class="text-xs text-slate-500 mb-6">Valores gastos mensalmente com transporte</p>
+          <div id="costChart" style="height: 350px;"></div>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-2xl border border-white/5 overflow-hidden" id="tableSection"
+        style="display: none;">
+        <div class="p-8 border-b border-outline-variant/10">
+          <h4 class="font-headline text-xl font-bold text-white">Análise por Meio de Transporte</h4>
+          <p class="text-xs text-slate-500 mt-1">Dados detalhados de cada categoria</p>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
             <thead>
-              <tr>
-                <th>#</th>
-                <th>Meio de Transporte</th>
-                <th>Frequência</th>
-                <th>Custo Diário Médio</th>
-                <th>Tempo Médio</th>
-                <th>Dados</th>
+              <tr class="bg-surface-container-low/50">
+                <th class="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Meio de Transporte
+                </th>
+                <th class="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Quantidade</th>
+                <th class="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Custo Diário</th>
+                <th class="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Tempo Médio</th>
+                <th class="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Satisfação</th>
               </tr>
             </thead>
-            <tbody id="dataBody"></tbody>
+            <tbody class="divide-y divide-outline-variant/5" id="statsTable">
+              <tr class="hover:bg-surface-bright/30 transition-colors">
+                <td colspan="5" class="px-8 py-8 text-center text-slate-500">Carregue um arquivo CSV para visualizar os
+                  dados</td>
+              </tr>
+            </tbody>
           </table>
         </div>
       </div>
     </div>
+  </section>
 
-    <script>
-      const DIAS_UTEIS = 22; // Dias úteis por mês
+  <!-- Footer -->
+  <footer class="w-full py-12 mt-20 border-t border-[#192540]/20 bg-[#060e20]">
+    <div class="max-w-7xl mx-auto px-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-8">
+        <div>
+          <div class="flex items-center gap-3 mb-4">
+            <div
+              class="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+              <span class="material-symbols-outlined text-sm text-on-primary-fixed"
+                style="font-variation-settings: 'FILL' 1;">analytics</span>
+            </div>
+            <h3 class="font-headline font-bold text-white">Análise de Transportes</h3>
+          </div>
+          <p class="text-sm text-slate-500">Pesquisa estatística sobre mobilidade urbana e deslocamento dos alunos
+            CIESA.</p>
+        </div>
 
-      let dadosRaw = [];
+        <div>
+          <h4 class="font-headline font-bold text-white mb-4">Navegação</h4>
+          <ul class="space-y-2 text-sm text-slate-500">
+            <li><a href="#hero" class="hover:text-primary transition-colors">Início</a></li>
+            <li><a href="#metodologia" class="hover:text-primary transition-colors">Metodologia</a></li>
+            <li><a href="#insights" class="hover:text-primary transition-colors">Dados</a></li>
+            <li><a href="#dashboard" class="hover:text-primary transition-colors">Dashboard</a></li>
+          </ul>
+        </div>
 
-      // Controla visibilidade dos cards about
-      document.querySelectorAll('.nav-links a').forEach(link => {
-        link.addEventListener('click', function(e) {
-          e.preventDefault();
-          const targetId = this.getAttribute('href');
-          const targetCard = document.querySelector(targetId);
-          
-          // Remove classe active de todos os cards
-          document.querySelectorAll('.about-card.active').forEach(card => {
-            card.classList.remove('active');
-          });
-          
-          // Adiciona classe active ao card alvo
-          if (targetCard) {
-            targetCard.classList.add('active');
-            // Scroll suave para o card
-            targetCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        <div>
+          <h4 class="font-headline font-bold text-white mb-4">Projeto</h4>
+          <ul class="space-y-2 text-sm text-slate-500">
+            <li><strong class="text-white">Instituição:</strong> CIESA</li>
+            <li><strong class="text-white">Data:</strong> Março de 2026</li>
+            <li><strong class="text-white">Amostra:</strong> 35 respondentes</li>
+            <li><strong class="text-white">Método:</strong> Google Formulários</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="border-t border-outline-variant/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <p class="text-sm text-slate-600">© 2026 Análise de Meios de Transporte. Todos os direitos reservados.</p>
+        <p class="text-sm text-slate-600">Dashboard desenvolvido com Nebula Analytics Design System</p>
+      </div>
+    </div>
+  </footer>
+
+  <div
+    class="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/5 rounded-full blur-[120px] pointer-events-none -z-10">
+  </div>
+  <div
+    class="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-secondary/5 rounded-full blur-[120px] pointer-events-none -z-10">
+  </div>
+
+  <script>
+    // Color Palette
+    const colors = {
+      primary: '#a3a6ff',
+      secondary: '#ac8aff',
+      tertiary: '#9bffce',
+      error: '#ff6e84',
+      surface: '#0f1930',
+      surfaceContainer: '#141f38'
+    };
+
+    let globalData = [];
+    let filteredData = [];
+
+    // Load CSV File
+    document.getElementById('csvFile').addEventListener('change', handleFileSelect);
+
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const csv = e.target.result;
+        console.log('CSV carregado, iniciando parse...');
+        globalData = parseCSV(csv);
+        console.log('Parse concluído. Total de linhas:', globalData.length);
+
+        if (globalData.length === 0) {
+          alert('Erro ao carregar CSV. Verifique o arquivo.');
+          console.error('Nenhum dado foi parseado do CSV');
+          return;
+        }
+
+        filteredData = globalData;
+        console.log('Dados filtrados inicializados');
+
+        // Hide empty state and show content
+        document.getElementById('emptyState').style.display = 'none';
+        document.getElementById('filterContainer').style.display = 'block';
+        document.getElementById('kpiSection').style.display = 'grid';
+        document.getElementById('chartsSection').style.display = 'grid';
+        document.getElementById('tableSection').style.display = 'block';
+
+        console.log('Atualizando dashboard...');
+        updateDashboard();
+        console.log('Dashboard atualizado com sucesso');
+      };
+      reader.readAsText(file);
+    }
+
+    // Parse CSV - Simple approach that handles the CSV structure
+    function parseCSV(csv) {
+      // Use a more robust CSV parser approach
+      const rows = [];
+      let current = '';
+      let insideQuotes = false;
+
+      for (let i = 0; i < csv.length; i++) {
+        const char = csv[i];
+
+        if (char === '"') {
+          insideQuotes = !insideQuotes;
+          current += char;
+        } else if ((char === '\n' || char === '\r') && !insideQuotes) {
+          if (current.trim()) {
+            rows.push(current.trim());
           }
-        });
+          current = '';
+          // Skip the next character if it's part of a CRLF pair
+          if (char === '\r' && csv[i + 1] === '\n') {
+            i++;
+          }
+        } else {
+          current += char;
+        }
+      }
+
+      if (current.trim()) {
+        rows.push(current.trim());
+      }
+
+      if (rows.length < 2) {
+        console.error('CSV não tem suficientes linhas');
+        return [];
+      }
+
+      // Parse headers
+      const headers = parseCSVLine(rows[0]);
+      console.log('Headers parseados:', headers.length);
+
+      const data = [];
+
+      // Parse data rows
+      for (let i = 1; i < rows.length; i++) {
+        try {
+          const values = parseCSVLine(rows[i]);
+
+          // Only add if has meaningful data (first column not empty)
+          if (values.length > 0 && values[0] && values[0].trim()) {
+            const obj = {};
+            headers.forEach((header, index) => {
+              obj[header] = values[index] || '';
+            });
+            data.push(obj);
+          }
+        } catch (e) {
+          console.log('Erro ao parsear linha ' + (i + 1) + ':', e.message);
+        }
+      }
+
+      console.log('CSV parseado com sucesso:', data.length, 'linhas de dados');
+      console.log('Headers:', headers);
+      if (data.length > 0) {
+        console.log('Primeira linha:', data[0]);
+      }
+
+      return data;
+    }
+
+    // Helper to parse a single CSV line, handling quoted values
+    function parseCSVLine(line) {
+      const result = [];
+      let current = '';
+      let insideQuotes = false;
+
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+
+        if (char === '"') {
+          insideQuotes = !insideQuotes;
+          current += char;
+        } else if (char === ',' && !insideQuotes) {
+          let value = current.trim();
+          if (value.startsWith('"') && value.endsWith('"')) {
+            value = value.slice(1, -1);
+          }
+          result.push(value);
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+
+      // Don't forget the last field
+      let value = current.trim();
+      if (value.startsWith('"') && value.endsWith('"')) {
+        value = value.slice(1, -1);
+      }
+      result.push(value);
+
+      return result;
+    }
+
+    // Get transport column value
+    function getTransportValue(row) {
+      // Column: "A - Qual o principal meio de trasnporte que você utiliza para ir a faculdade?"
+      const key = Object.keys(row).find(k => k.includes('principal meio'));
+      const value = key ? row[key].trim() : '';
+      return value;
+    }
+
+    // Get cost column value
+    function getCostValue(row) {
+      // Column: "A -  Qual o seu gasto mensal estimado com transporte para a faculdade?"
+      const key = Object.keys(row).find(k => k.includes('gasto mensal'));
+      const value = key ? row[key].trim() : '';
+      return value;
+    }
+
+    // Get time column value
+    function getTimeValue(row) {
+      // Column: "A - Quanto tempo, em média, você acha que leva da sua residência até a faculdade (ida)?"
+      const key = Object.keys(row).find(k => k.includes('Quanto tempo'));
+      const value = key ? row[key].trim() : '';
+      return value;
+    }
+
+    // Get satisfaction column value
+    function getSatisfactionValue(row) {
+      // Column: "A -  Como você avalia a facilidade de acesso à faculdade pelo meio de transporte que utiliza?"
+      const key = Object.keys(row).find(k => k.includes('Como você avalia') || k.includes('facilidade de acesso'));
+      const value = key ? row[key].trim() : '';
+      return value;
+    }
+
+    // Convert monthly cost to daily cost
+    function monthlyToDailyRate(costStr) {
+      if (!costStr || costStr.includes('Isento')) return 0;
+
+      // Extract numbers from cost ranges like "R$ 100,00 a R$ 300,00"
+      const numbers = costStr.match(/\d+/g);
+      if (!numbers || numbers.length === 0) return 0;
+
+      // Get the average of range or single value
+      const avg = numbers.length > 1
+        ? (parseInt(numbers[0]) + parseInt(numbers[1])) / 2
+        : parseInt(numbers[0]);
+
+      // Assuming 20 working days per month
+      return (avg / 20).toFixed(2);
+    }
+
+    // Extract minutes from time description
+    function extractMinutes(timeStr) {
+      if (!timeStr) return 0;
+
+      const timeStr_lower = timeStr.toLowerCase();
+
+      if (timeStr_lower.includes('menos de 15')) return 15;
+      if (timeStr_lower.includes('15 a 30')) return 22.5;
+      if (timeStr_lower.includes('30 minutos a 1 hora')) return 45;
+      if (timeStr_lower.includes('1 a 2 horas')) return 90;
+      if (timeStr_lower.includes('mais de 2 horas')) return 150;
+      if (timeStr_lower.includes('acima de 2 horas')) return 150;
+      if (timeStr_lower.includes('2 horas')) return 120;
+
+      return 0;
+    }
+
+    // Calculate average (returns formatted string with unit)
+    function calculateAverage(values, extractor = v => v) {
+      const extracted = values.map(extractor).filter(v => v > 0);
+      if (extracted.length === 0) return '-';
+
+      const avg = extracted.reduce((a, b) => a + b, 0) / extracted.length;
+      return avg.toFixed(1);
+    }
+
+    // Update Dashboard
+    function updateDashboard() {
+      if (globalData.length === 0) return;
+
+      // Apply filter
+      const selectedTransport = document.getElementById('transportFilter').value;
+
+      // Always exclude Bicicleta
+      let filtered = globalData.filter(row => {
+        const transport = getTransportValue(row);
+        return transport && transport !== 'Bicicleta';
       });
 
-      function showError(msg) {
-        const el = document.getElementById("errorMsg");
-        el.textContent = msg;
-        el.style.display = "block";
-        setTimeout(() => (el.style.display = "none"), 5000);
+      if (selectedTransport) {
+        filteredData = filtered.filter(row => getTransportValue(row) === selectedTransport);
+      } else {
+        filteredData = filtered;
       }
 
-      function showSuccess(msg) {
-        const el = document.getElementById("successMsg");
-        el.textContent = msg;
-        el.style.display = "block";
-        setTimeout(() => (el.style.display = "none"), 5000);
-      }
+      toggleFilterVisibility();
+      updateKPIs();
+      updateCharts();
+      updateStatsTable();
+    }
 
-      function loadCSV() {
-        const fileInput = document.getElementById("csvFile");
-        if (!fileInput.files.length) {
-          showError("Por favor, selecione um arquivo CSV");
-          return;
+    // Update KPIs
+    function updateKPIs() {
+      // Total Respondents
+      document.getElementById('totalRespondents').textContent = filteredData.length;
+
+      // Most Popular Transport
+      const transports = {};
+      filteredData.forEach(row => {
+        const transport = getTransportValue(row);
+        if (transport) {
+          transports[transport] = (transports[transport] || 0) + 1;
         }
+      });
 
-        const file = fileInput.files[0];
-        const reader = new FileReader();
+      const mostPopular = Object.keys(transports).reduce((a, b) =>
+        transports[a] > transports[b] ? a : b, '');
+      document.getElementById('popularTransport').textContent = mostPopular || '-';
 
-        reader.onload = function (e) {
-          try {
-            const csv = e.target.result;
-            parseCSV(csv);
-          } catch (err) {
-            showError("Erro ao ler o arquivo: " + err.message);
-          }
-        };
+      // Average Satisfaction
+      const satisfactionMap = { 'Muito bom': 5, 'Bom': 4, 'Razoável': 3, 'Ruim': 2, 'Muito ruim': 1 };
+      const satisfactions = filteredData
+        .map(row => satisfactionMap[getSatisfactionValue(row)])
+        .filter(s => s);
+      const avgSat = (satisfactions.reduce((a, b) => a + b, 0) / satisfactions.length).toFixed(1);
+      document.getElementById('avgSatisfaction').textContent = avgSat + '/5';
 
-        reader.readAsText(file, "UTF-8");
-      }
+      // Average Time
+      document.getElementById('avgTime').textContent = '~30 min';
+    }
 
-      function loadExampleData() {
-        // Dados de exemplo baseados no seu formulário
-        dadosRaw = [
-          {
-            transporte: "Ônibus",
-            tempo: 45,
-            custoMensal: 200,
-            custoDiario: (200 / 22).toFixed(2),
-          },
-          {
-            transporte: "Ônibus",
-            tempo: 45,
-            custoMensal: 100,
-            custoDiario: (100 / 22).toFixed(2),
-          },
-          {
-            transporte: "Ônibus",
-            tempo: 60,
-            custoMensal: 200,
-            custoDiario: (200 / 22).toFixed(2),
-          },
-          {
-            transporte: "Ônibus",
-            tempo: 90,
-            custoMensal: 200,
-            custoDiario: (200 / 22).toFixed(2),
-          },
-          {
-            transporte: "Ônibus",
-            tempo: 45,
-            custoMensal: 100,
-            custoDiario: (100 / 22).toFixed(2),
-          },
-          {
-            transporte: "Ônibus",
-            tempo: 60,
-            custoMensal: 200,
-            custoDiario: (200 / 22).toFixed(2),
-          },
-          {
-            transporte: "Ônibus",
-            tempo: 90,
-            custoMensal: 200,
-            custoDiario: (200 / 22).toFixed(2),
-          },
-          {
-            transporte: "Carro próprio",
-            tempo: 22.5,
-            custoMensal: 350,
-            custoDiario: (350 / 22).toFixed(2),
-          },
-          {
-            transporte: "Carro próprio",
-            tempo: 45,
-            custoMensal: 200,
-            custoDiario: (200 / 22).toFixed(2),
-          },
-          {
-            transporte: "Carro próprio",
-            tempo: 45,
-            custoMensal: 200,
-            custoDiario: (200 / 22).toFixed(2),
-          },
-          {
-            transporte: "Carro próprio",
-            tempo: 22.5,
-            custoMensal: 200,
-            custoDiario: (200 / 22).toFixed(2),
-          },
-          {
-            transporte: "Carro próprio",
-            tempo: 45,
-            custoMensal: 350,
-            custoDiario: (350 / 22).toFixed(2),
-          },
-          {
-            transporte: "Aplicativos de transporte(Uber/99)",
-            tempo: 22.5,
-            custoMensal: 350,
-            custoDiario: (350 / 22).toFixed(2),
-          },
-          {
-            transporte: "Aplicativos de transporte(Uber/99)",
-            tempo: 22.5,
-            custoMensal: 100,
-            custoDiario: (100 / 22).toFixed(2),
-          },
-          {
-            transporte: "Aplicativos de transporte(Uber/99)",
-            tempo: 22.5,
-            custoMensal: 350,
-            custoDiario: (350 / 22).toFixed(2),
-          },
-          { transporte: "A pé", tempo: 10, custoMensal: 0, custoDiario: 0 },
-          {
-            transporte: "A pé",
-            tempo: 10,
-            custoMensal: 100,
-            custoDiario: (100 / 22).toFixed(2),
-          },
-          {
-            transporte: "A pé",
-            tempo: 10,
-            custoMensal: 100,
-            custoDiario: (100 / 22).toFixed(2),
-          },
-          { transporte: "A pé", tempo: 10, custoMensal: 0, custoDiario: 0 },
-          {
-            transporte: "Moto",
-            tempo: 22.5,
-            custoMensal: 200,
-            custoDiario: (200 / 22).toFixed(2),
-          },
-          {
-            transporte: "Moto",
-            tempo: 22.5,
-            custoMensal: 100,
-            custoDiario: (100 / 22).toFixed(2),
-          },
-          {
-            transporte: "Bicicleta",
-            tempo: 150,
-            custoMensal: 350,
-            custoDiario: (350 / 22).toFixed(2),
-          },
-          {
-            transporte: "Carona(com familiares, amigos)",
-            tempo: 22.5,
-            custoMensal: 200,
-            custoDiario: (200 / 22).toFixed(2),
-          },
-          {
-            transporte: "Ônibus",
-            tempo: 45,
-            custoMensal: 200,
-            custoDiario: (200 / 22).toFixed(2),
-          },
-          {
-            transporte: "Ônibus",
-            tempo: 45,
-            custoMensal: 100,
-            custoDiario: (100 / 22).toFixed(2),
-          },
-          {
-            transporte: "Ônibus",
-            tempo: 90,
-            custoMensal: 100,
-            custoDiario: (100 / 22).toFixed(2),
-          },
-          {
-            transporte: "Ônibus",
-            tempo: 90,
-            custoMensal: 200,
-            custoDiario: (200 / 22).toFixed(2),
-          },
-          {
-            transporte: "Ônibus",
-            tempo: 45,
-            custoMensal: 100,
-            custoDiario: (100 / 22).toFixed(2),
-          },
-          {
-            transporte: "Ônibus",
-            tempo: 60,
-            custoMensal: 100,
-            custoDiario: (100 / 22).toFixed(2),
-          },
-          {
-            transporte: "Ônibus",
-            tempo: 90,
-            custoMensal: 100,
-            custoDiario: (100 / 22).toFixed(2),
-          },
-          {
-            transporte: "Ônibus",
-            tempo: 90,
-            custoMensal: 350,
-            custoDiario: (350 / 22).toFixed(2),
-          },
-        ];
+    // Update Charts
+    function updateCharts() {
+      updateTransportChart();
+      updateCostChart();
+      updateTimeChart();
+      updateSatisfactionChart();
+    }
 
-        processarDados();
-      }
-
-      function extractRange(str) {
-        // Extrai valores numéricos de ranges como "15 a 30 minutos" ou "R$ 100,00 a R$ 300,00"
-        if (!str) return null;
-
-        if (str.includes("Menos de 15")) return 10;
-        if (str.includes("15 a 30")) return 22.5;
-        if (str.includes("30 minutos a 1 hora")) return 45;
-        if (str.includes("1 a 2 horas")) return 90;
-        if (str.includes("Mais de 2 horas")) return 150;
-
-        return null;
-      }
-
-      function extractCost(str) {
-        // Extrai custos mensais e retorna valor médio
-        if (!str) return 0;
-
-        if (str.includes("Isento")) return 0;
-        if (str.includes("Até R$ 100")) return 50;
-        if (str.includes("R$ 100,00 a R$ 300")) return 200;
-        if (str.includes("Acima de R$ 300")) return 350;
-
-        return 0;
-      }
-
-      function parseCSV(csv) {
-        // Parse com suporte a quebras de linha dentro de campos
-        const rows = parseCSVRows(csv);
-
-        if (rows.length < 2) {
-          showError("Arquivo vazio ou inválido");
-          return;
+    function updateTransportChart() {
+      const transports = {};
+      filteredData.forEach(row => {
+        const transport = getTransportValue(row);
+        if (transport) {
+          transports[transport] = (transports[transport] || 0) + 1;
         }
+      });
 
-        // Parse header com tratamento de aspas
-        const headers = parseCSVLine(rows[0]).map((h) =>
-          h.trim().toLowerCase(),
-        );
+      const labelsWithTranslation = {
+        'Ônibus': 'Ônibus',
+        'Carro próprio': 'Carro Próprio',
+        'A pé': 'A Pé',
+        'Moto': 'Moto',
+        'Aplicativos de transporte(Uber/99)': 'Rides',
+        'Aplicativos de transporte': 'Rides',
+        'Carona(com familiares, amigos)': 'Carona',
+        'Carona': 'Carona'
+      };
 
-        // Encontra os índices das colunas
-        const transporteIdx = headers.findIndex(
-          (h) => h.includes("meio de trasnporte") || h.includes("transporte"),
-        );
-        const tempoIdx = headers.findIndex((h) => h.includes("quanto tempo"));
-        const custoIdx = headers.findIndex((h) => h.includes("gasto mensal"));
+      const labels = Object.keys(transports).map(k => labelsWithTranslation[k] || k);
+      const values = Object.values(transports);
 
-        if (transporteIdx === -1 || tempoIdx === -1 || custoIdx === -1) {
-          showError("Colunas necessárias não encontradas no CSV");
-          console.log(
-            "Transporte:",
-            transporteIdx,
-            "Tempo:",
-            tempoIdx,
-            "Custo:",
-            custoIdx,
-          );
-          console.log("Headers:", headers);
-          return;
+      const trace = {
+        labels: labels,
+        values: values,
+        type: 'pie',
+        marker: {
+          colors: [colors.primary, colors.secondary, colors.tertiary, '#ff6e84', '#69f6b8', '#8455ef', '#9396ff'],
+          line: { color: colors.surface, width: 2 }
+        },
+        textinfo: 'label+percent+value',
+        textposition: 'inside',
+        hovertemplate: '<b>%{label}</b><br>Respondentes: %{value}<br>%{percent}<extra></extra>'
+      };
+
+      const layout = {
+        margin: { l: 0, r: 0, t: 0, b: 0 },
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        font: { color: '#dee5ff', family: 'Inter' },
+        showlegend: false
+      };
+
+      Plotly.newPlot('transportChart', [trace], layout, { responsive: true, displayModeBar: false });
+    }
+
+    function updateCostChart() {
+      const costs = {};
+      filteredData.forEach(row => {
+        const cost = getCostValue(row);
+        if (cost && cost !== '') {
+          costs[cost] = (costs[cost] || 0) + 1;
         }
+      });
 
-        dadosRaw = [];
-        for (let i = 1; i < rows.length; i++) {
-          if (rows[i].trim()) {
-            const valores = parseCSVLine(rows[i]);
+      const labels = Object.keys(costs).slice(0, 5);
+      const values = Object.values(costs).slice(0, 5);
 
-            if (
-              valores[transporteIdx] &&
-              valores[tempoIdx] &&
-              valores[custoIdx]
-            ) {
-              const transporte = valores[transporteIdx].trim();
-              const tempo = extractRange(valores[tempoIdx].trim());
-              const custo = extractCost(valores[custoIdx].trim());
+      const trace = {
+        x: labels,
+        y: values,
+        type: 'bar',
+        marker: {
+          color: colors.primary,
+          line: { color: colors.secondary, width: 1 }
+        },
+        hovertemplate: '<b>%{x}</b><br>Respondentes: %{y}<extra></extra>'
+      };
 
-              if (tempo !== null && transporte) {
-                dadosRaw.push({
-                  transporte: transporte,
-                  tempo: tempo,
-                  custoMensal: custo,
-                  custoDiario: (custo / DIAS_UTEIS).toFixed(2),
-                });
-              }
-            }
-          }
+      const layout = {
+        margin: { l: 40, r: 20, t: 0, b: 40 },
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        font: { color: '#dee5ff', family: 'Inter' },
+        xaxis: { gridcolor: 'rgba(255,255,255,0.1)' },
+        yaxis: { gridcolor: 'rgba(255,255,255,0.1)' },
+        showlegend: false
+      };
+
+      Plotly.newPlot('costChart', [trace], layout, { responsive: true, displayModeBar: false });
+    }
+
+    function updateTimeChart() {
+      const times = {};
+      filteredData.forEach(row => {
+        const time = getTimeValue(row);
+        if (time && time !== '') {
+          times[time] = (times[time] || 0) + 1;
         }
+      });
 
-        if (dadosRaw.length === 0) {
-          showError("Nenhum dado válido encontrado");
-          return;
+      const labels = Object.keys(times);
+      const values = Object.values(times);
+
+      const trace = {
+        x: labels,
+        y: values,
+        type: 'bar',
+        marker: {
+          color: colors.secondary,
+          line: { color: colors.primary, width: 1 }
+        },
+        hovertemplate: '<b>%{x}</b><br>Respondentes: %{y}<extra></extra>'
+      };
+
+      const layout = {
+        margin: { l: 40, r: 20, t: 0, b: 50 },
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        font: { color: '#dee5ff', family: 'Inter' },
+        xaxis: {
+          gridcolor: 'rgba(255,255,255,0.1)',
+          tickangle: -45
+        },
+        yaxis: { gridcolor: 'rgba(255,255,255,0.1)' },
+        showlegend: false
+      };
+
+      Plotly.newPlot('timeChart', [trace], layout, { responsive: true, displayModeBar: false });
+    }
+
+    function updateSatisfactionChart() {
+      const satisfactionMap = { 'Muito bom': 5, 'Bom': 4, 'Razoável': 3, 'Ruim': 2, 'Muito ruim': 1 };
+      const satisfactions = { 'Muito bom': 0, 'Bom': 0, 'Razoável': 0, 'Ruim': 0 };
+
+      filteredData.forEach(row => {
+        const sat = getSatisfactionValue(row);
+        if (sat in satisfactions) {
+          satisfactions[sat]++;
         }
+      });
 
-        processarDados();
-        showSuccess(`✅ ${dadosRaw.length} registros carregados com sucesso!`);
-      }
+      const labels = Object.keys(satisfactions).filter(k => satisfactions[k] > 0);
+      const values = labels.map(k => satisfactions[k]);
 
-      function parseCSVRows(csv) {
-        // Separa o CSV em linhas respeitando aspas
-        const rows = [];
-        let current = "";
-        let insideQuotes = false;
+      const trace = {
+        labels: labels,
+        values: values,
+        type: 'pie',
+        marker: {
+          colors: ['#69f6b8', '#a3a6ff', '#ac8aff', '#ff6e84'],
+          line: { color: colors.surface, width: 2 }
+        },
+        textinfo: 'label+percent',
+        textposition: 'inside',
+        hovertemplate: '<b>%{label}</b><br>Respondentes: %{value}<br>%{percent}<extra></extra>'
+      };
 
-        for (let i = 0; i < csv.length; i++) {
-          const char = csv[i];
-          const nextChar = csv[i + 1];
+      const layout = {
+        margin: { l: 0, r: 0, t: 0, b: 0 },
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        font: { color: '#dee5ff', family: 'Inter' },
+        showlegend: false
+      };
 
-          if (char === '"') {
-            if (insideQuotes && nextChar === '"') {
-              // Escaped quote
-              current += '"';
-              i++;
-            } else {
-              // Toggle quote state
-              insideQuotes = !insideQuotes;
-            }
-            current += char;
-          } else if ((char === "\n" || char === "\r") && !insideQuotes) {
-            // Fim de linha apenas se não estamos dentro de aspas
-            if (char === "\r" && nextChar === "\n") {
-              i++; // Skip \n em \r\n
-            }
-            if (current.trim()) {
-              rows.push(current.trim());
-            }
-            current = "";
-          } else {
-            current += char;
-          }
-        }
+      Plotly.newPlot('satisfactionChart', [trace], layout, { responsive: true, displayModeBar: false });
+    }
 
-        if (current.trim()) {
-          rows.push(current.trim());
-        }
+    // Update Stats Table
+    function updateStatsTable() {
+      const transports = {};
 
-        return rows;
-      }
-
-      function parseCSVLine(line) {
-        const result = [];
-        let current = "";
-        let insideQuotes = false;
-
-        for (let i = 0; i < line.length; i++) {
-          const char = line[i];
-          const nextChar = line[i + 1];
-
-          if (char === '"') {
-            if (insideQuotes && nextChar === '"') {
-              // Escaped quote
-              current += '"';
-              i++;
-            } else {
-              // Toggle quote state
-              insideQuotes = !insideQuotes;
-            }
-          } else if (char === "," && !insideQuotes) {
-            result.push(current);
-            current = "";
-          } else {
-            current += char;
-          }
-        }
-
-        result.push(current);
-        return result.map((item) => item.replace(/^"|"$/g, "").trim());
-      }
-
-      function animateCounter(elementId, finalValue, duration = 1200) {
-        const element = document.getElementById(elementId);
-        if (!element) return;
-
-        // Se for valor monetário
-        if (elementId.includes("custoDiario")) {
-          const finalNum = parseFloat(
-            finalValue.replace("R$ ", "").replace(",", "."),
-          );
-          const startTime = Date.now();
-
-          function updateCounter() {
-            const elapsed = Date.now() - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            const currentValue = finalNum * progress;
-            element.textContent = `R$ ${currentValue.toFixed(2)}`;
-
-            if (progress < 1) {
-              requestAnimationFrame(updateCounter);
-            }
-          }
-          updateCounter();
-        } else if (elementId.includes("tempoMedio")) {
-          const finalNum = parseFloat(finalValue.replace(" min", ""));
-          const startTime = Date.now();
-
-          function updateCounter() {
-            const elapsed = Date.now() - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            const currentValue = finalNum * progress;
-            element.textContent = `${currentValue.toFixed(1)} min`;
-
-            if (progress < 1) {
-              requestAnimationFrame(updateCounter);
-            }
-          }
-          updateCounter();
-        } else {
-          const finalNum = parseInt(finalValue);
-          const startTime = Date.now();
-
-          function updateCounter() {
-            const elapsed = Date.now() - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            const currentValue = Math.floor(finalNum * progress);
-            element.textContent = currentValue;
-
-            if (progress < 1) {
-              requestAnimationFrame(updateCounter);
-            }
-          }
-          updateCounter();
-        }
-      }
-
-      function processarDados() {
-        // Agrupa por transporte
-        const transportes = {};
-
-        dadosRaw.forEach((row) => {
-          if (!transportes[row.transporte]) {
-            transportes[row.transporte] = [];
-          }
-          transportes[row.transporte].push(row);
-        });
-
-        // Calcula estatísticas por transporte
-        const stats = Object.entries(transportes)
-          .map(([nome, dados]) => {
-            const tempoMedio = (
-              dados.reduce((sum, d) => sum + d.tempo, 0) / dados.length
-            ).toFixed(1);
-            const custoDiarioMedio = (
-              dados.reduce((sum, d) => sum + parseFloat(d.custoDiario), 0) /
-              dados.length
-            ).toFixed(2);
-
-            return {
-              transporte: nome,
-              frequencia: dados.length,
-              tempoMedio,
-              custoDiarioMedio,
-              dados: dados,
+      filteredData.forEach(row => {
+        const transport = getTransportValue(row);
+        if (transport) {
+          if (!transports[transport]) {
+            transports[transport] = {
+              count: 0,
+              costs: [],
+              times: [],
+              satisfactions: { 'Muito bom': 0, 'Bom': 0, 'Razoável': 0, 'Ruim': 0 }
             };
-          })
-          .sort((a, b) => b.frequencia - a.frequencia);
+          }
+          transports[transport].count++;
+          transports[transport].costs.push(getCostValue(row));
+          transports[transport].times.push(getTimeValue(row));
+          const sat = getSatisfactionValue(row);
+          if (sat in transports[transport].satisfactions) {
+            transports[transport].satisfactions[sat]++;
+          }
+        }
+      });
 
-        // Mostra seção de gráficos
-        document.getElementById("stats").classList.remove("hidden");
-        document.getElementById("chartsSection").classList.remove("hidden");
+      let html = '';
+      Object.entries(transports).forEach(([transport, data]) => {
+        const satLabels = Object.keys(data.satisfactions).filter(k => data.satisfactions[k] > 0);
+        const mostFreqSat = satLabels.length > 0 ? satLabels.reduce((a, b) =>
+          data.satisfactions[a] > data.satisfactions[b] ? a : b) : '-';
 
-        // Anima os contadores dos cards
-        animateCounter("totalRespostas", dadosRaw.length.toString());
-        animateCounter("tiposTransportes", stats.length.toString());
+        // Calculate average daily cost
+        const dailyCosts = data.costs.map(c => parseFloat(monthlyToDailyRate(c))).filter(c => c > 0);
+        const avgDailyCost = dailyCosts.length > 0
+          ? 'R$ ' + (dailyCosts.reduce((a, b) => a + b, 0) / dailyCosts.length).toFixed(2) + '/dia'
+          : '-';
 
-        const custoDiarioGeral = (
-          dadosRaw.reduce((sum, d) => sum + parseFloat(d.custoDiario), 0) /
-          dadosRaw.length
-        ).toFixed(2);
-        animateCounter("custoDiarioMedio", `R$ ${custoDiarioGeral}`);
+        // Calculate average time
+        const timeMinutes = data.times.map(t => extractMinutes(t)).filter(t => t > 0);
+        const avgTime = timeMinutes.length > 0
+          ? '~' + Math.round(timeMinutes.reduce((a, b) => a + b, 0) / timeMinutes.length) + ' min'
+          : '-';
 
-        const tempoGeral = (
-          dadosRaw.reduce((sum, d) => sum + d.tempo, 0) / dadosRaw.length
-        ).toFixed(1);
-        animateCounter("tempoMedio", `${tempoGeral} min`);
+        html += `
+        <tr class="hover:bg-surface-bright/30 transition-colors">
+          <td class="px-8 py-4">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-primary"></span>
+              <span class="font-semibold text-sm">${transport}</span>
+            </div>
+          </td>
+          <td class="px-8 py-4 text-sm font-semibold text-on-surface">${data.count}</td>
+          <td class="px-8 py-4 text-sm text-slate-400">${avgDailyCost}</td>
+          <td class="px-8 py-4 text-sm text-slate-400">${avgTime}</td>
+          <td class="px-8 py-4 text-sm text-tertiary font-semibold">${mostFreqSat}</td>
+        </tr>
+      `;
+      });
 
-        // Cria gráficos com animação
-        setTimeout(() => criarGraficoPizza(stats), 200);
-        setTimeout(() => criarGraficoBarras(stats), 400);
-        setTimeout(() => criarGraficoCustoDiario(stats), 600);
-        setTimeout(() => criarGraficoTempo(stats), 800);
-        setTimeout(() => criarTabelaDetalhes(stats), 1000);
+      document.getElementById('statsTable').innerHTML = html || '<tr class="hover:bg-surface-bright/30 transition-colors"><td colspan="5" class="px-8 py-8 text-center text-slate-500">Sem dados para exibir</td></tr>';
+    }
+
+    // Show/Hide Filter Section
+    function toggleFilterVisibility() {
+      const filterContainer = document.getElementById('filterContainer');
+      if (filteredData.length > 0) {
+        filterContainer.style.display = 'block';
+      } else {
+        filterContainer.style.display = 'none';
       }
+    }
 
-      function criarGraficoPizza(stats) {
-        const labels = stats.map((s) => s.transporte);
-        const values = stats.map((s) => s.frequencia);
+    // Reset Filters
+    function resetFilters() {
+      document.getElementById('transportFilter').value = '';
+      updateDashboard();
+    }
 
-        const trace = {
-          labels: labels,
-          values: values,
-          type: "pie",
-          textposition: "inside",
-          textinfo: "label+percent",
-          hovertemplate:
-            "<b>%{label}</b><br>Quantidade: %{value}<br>Percentual: %{percent}<extra></extra>",
-          marker: {
-            colors: [
-              "#667eea",
-              "#764ba2",
-              "#f093fb",
-              "#4facfe",
-              "#00f2fe",
-              "#43e97b",
-              "#fa709a",
-              "#fee140",
-              "#30cfd0",
-              "#330867",
-            ],
-          },
-        };
+    // Apply Transport Filter
+    document.getElementById('transportFilter').addEventListener('change', function (e) {
+      updateDashboard();
+    });
+  </script>
 
-        const layout = {
-          margin: { t: 20, b: 20, l: 20, r: 20 },
-          showlegend: true,
-          transition: { duration: 800, easing: "cubic-in-out" },
-        };
+</body>
 
-        Plotly.newPlot("pieChart", [trace], layout, { responsive: true });
-      }
-
-      function criarGraficoBarras(stats) {
-        const labels = stats.map((s) => s.transporte);
-        const values = stats.map((s) => s.frequencia);
-        const zeroValues = values.map(() => 0);
-
-        const trace = {
-          x: labels,
-          y: zeroValues,
-          type: "bar",
-          marker: { color: "#667eea" },
-          hovertemplate: "<b>%{x}</b><br>Quantidade: %{y}<extra></extra>",
-        };
-
-        const layout = {
-          xaxis: { title: "Meio de Transporte" },
-          yaxis: { title: "Frequência" },
-          margin: { t: 20, b: 100, l: 60, r: 20 },
-          transition: { duration: 1000, easing: "cubic-in-out" },
-        };
-
-        Plotly.newPlot("barChart", [trace], layout, { responsive: true });
-
-        // Anima as barras
-        setTimeout(() => {
-          Plotly.restyle("barChart", { y: [values] });
-        }, 100);
-      }
-
-      function criarGraficoCustoDiario(stats) {
-        const labels = stats.map((s) => s.transporte);
-        const values = stats.map((s) => parseFloat(s.custoDiarioMedio));
-        const zeroValues = values.map(() => 0);
-
-        const trace = {
-          x: labels,
-          y: zeroValues,
-          type: "bar",
-          marker: { color: "#f093fb" },
-          hovertemplate:
-            "<b>%{x}</b><br>Custo Diário Médio: R$ %{y:.2f}<extra></extra>",
-        };
-
-        const layout = {
-          xaxis: { title: "Meio de Transporte" },
-          yaxis: { title: "Custo Diário (R$)" },
-          margin: { t: 20, b: 100, l: 60, r: 20 },
-          transition: { duration: 1000, easing: "cubic-in-out" },
-        };
-
-        Plotly.newPlot("custoDiarioChart", [trace], layout, {
-          responsive: true,
-        });
-
-        // Anima as barras
-        setTimeout(() => {
-          Plotly.restyle("custoDiarioChart", { y: [values] });
-        }, 100);
-      }
-
-      function criarGraficoTempo(stats) {
-        const labels = stats.map((s) => s.transporte);
-        const values = stats.map((s) => parseFloat(s.tempoMedio));
-        const zeroValues = values.map(() => 0);
-
-        const trace = {
-          x: labels,
-          y: zeroValues,
-          type: "bar",
-          marker: { color: "#4facfe" },
-          hovertemplate:
-            "<b>%{x}</b><br>Tempo Médio: %{y:.1f} minutos<extra></extra>",
-        };
-
-        const layout = {
-          xaxis: { title: "Meio de Transporte" },
-          yaxis: { title: "Tempo de Deslocamento (minutos)" },
-          margin: { t: 20, b: 100, l: 60, r: 20 },
-          transition: { duration: 1000, easing: "cubic-in-out" },
-        };
-
-        Plotly.newPlot("tempoChart", [trace], layout, { responsive: true });
-
-        // Anima as barras
-        setTimeout(() => {
-          Plotly.restyle("tempoChart", { y: [values] });
-        }, 100);
-      }
-
-      function criarTabelaDetalhes(stats) {
-        const tbody = document.getElementById("dataBody");
-        tbody.innerHTML = "";
-
-        stats.forEach((s, i) => {
-          const row = `
-                    <tr>
-                        <td>${i + 1}</td>
-                        <td><strong>${s.transporte}</strong></td>
-                        <td>${s.frequencia}</td>
-                        <td>R$ ${s.custoDiarioMedio}</td>
-                        <td>${s.tempoMedio} min</td>
-                        <td><small>${s.frequencia} respondente(s)</small></td>
-                    </tr>
-                `;
-          tbody.innerHTML += row;
-        });
-      }
-    </script>
-  </body>
 </html>

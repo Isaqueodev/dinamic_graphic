@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Teste de Carregamento CSV</title>
+</head>
+
+<body>
+    <h1>Teste de Carregamento CSV</h1>
+    <button onclick="loadCSV()">Carregar CSV do Servidor</button>
+    <hr>
+    <pre id="output"
+        style="background: #f0f0f0; padding: 10px; border-radius: 5px; max-height: 400px; overflow-y: auto;"></pre>
+
+    <script>
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let insideQuotes = false;
+
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+
+                if (char === '"') {
+                    insideQuotes = !insideQuotes;
+                    current += char;
+                } else if (char === ',' && !insideQuotes) {
+                    let value = current.trim();
+                    if (value.startsWith('"') && value.endsWith('"')) {
+                        value = value.slice(1, -1);
+                    }
+                    result.push(value);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+
+            let value = current.trim();
+            if (value.startsWith('"') && value.endsWith('"')) {
+                value = value.slice(1, -1);
+            }
+            result.push(value);
+
+            return result;
+        }
+
+        function loadCSV() {
+            const output = document.getElementById('output');
+            output.innerHTML = 'Carregando CSV...\n';
+
+            fetch('Pesquisa_ Meios de Transporte (respostas) - Respostas ao formulário 1.csv')
+                .then(response => response.text())
+                .then(csv => {
+                    output.innerHTML += 'CSV carregado com ' + csv.length + ' caracteres\n\n';
+
+                    const lines = csv.split('\n').filter(line => line.trim());
+                    output.innerHTML += 'Total de linhas: ' + lines.length + '\n\n';
+
+                    // Parse header
+                    const headers = parseCSVLine(lines[0]);
+                    output.innerHTML += 'Headers parseados: ' + headers.length + '\n';
+                    headers.forEach((h, i) => {
+                        output.innerHTML += (i + 1) + ': ' + h.substring(0, 50) + (h.length > 50 ? '...' : '') + '\n';
+                    });
+
+                    output.innerHTML += '\n--- Primeira linha de dados ---\n';
+                    if (lines.length > 1) {
+                        const firstRow = parseCSVLine(lines[1]);
+                        output.innerHTML += 'Colunas: ' + firstRow.length + '\n';
+                        firstRow.forEach((value, i) => {
+                            output.innerHTML += headers[i] + ' = ' + value.substring(0, 50) + (value.length > 50 ? '...' : '') + '\n';
+                        });
+                    }
+                })
+                .catch(err => {
+                    output.innerHTML += 'ERRO: ' + err.message + '\n';
+                    console.error(err);
+                });
+        }
+    </script>
+</body>
+
+</html>

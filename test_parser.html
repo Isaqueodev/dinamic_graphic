@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Test CSV Parser</title>
+</head>
+
+<body>
+    <h1>CSV Parser Test</h1>
+    <button onclick="testParser()">Test Parser</button>
+    <pre id="output"></pre>
+
+    <script>
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let insideQuotes = false;
+
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+
+                if (char === '"') {
+                    insideQuotes = !insideQuotes;
+                } else if (char === ',' && !insideQuotes) {
+                    result.push(current.trim().replace(/^"|"$/g, ''));
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+
+            result.push(current.trim().replace(/^"|"$/g, ''));
+            return result;
+        }
+
+        function testParser() {
+            const testLine = 'Carimbo de data/hora,Qual o seu nome?,Qual o seu curso?,A - Qual o principal meio de trasnporte que você utiliza para ir a faculdade?,B - Com qual frequência você utiliza este meio de transporte?,"A - Quanto tempo, em média, você acha que leva da sua residência até a faculdade (ida)? ",B -  Você precisa utilizar mais de um meio de transporte para chegar ao campus? (Ex: Ônibus + Outro Ônibus) ,A -  Qual o seu gasto mensal estimado com transporte para a faculdade? ,B -  Você utiliza algum benefício tarifário? ,A -  Como você avalia a facilidade de acesso à faculdade pelo meio de transporte que utiliza? ,B -  Qual/Quais o(s) principal/principais problema(s) enfrentado no seu trajeto? ,"A - Se houvesse melhor infraestrutura (ciclovias, bicicletários, mais linhas de ônibus), você mudaria seu meio de transporte atual? Se sim, para qual? e se não, por que?"';
+
+            const result = parseCSVLine(testLine);
+
+            const output = document.getElementById('output');
+            output.innerHTML = 'Parsed ' + result.length + ' columns:\n\n';
+
+            result.forEach((col, i) => {
+                output.innerHTML += (i + 1) + ': "' + col + '"\n';
+            });
+        }
+    </script>
+</body>
+
+</html>

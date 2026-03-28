@@ -49,8 +49,62 @@
           #7e57c2 100%
         );
         min-height: 100vh;
-        padding: 20px;
+        padding: 92px 20px 20px;
         color: #333;
+      }
+
+      .top-nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        background: rgba(13, 45, 79, 0.92);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      }
+
+      .top-nav-inner {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+      }
+
+      .brand {
+        color: #d8ebff;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        font-size: 0.95em;
+        white-space: nowrap;
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .nav-links a {
+        color: #f5fbff;
+        text-decoration: none;
+        font-size: 0.85em;
+        font-weight: 600;
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+        padding: 9px 14px;
+        border-radius: 999px;
+        transition: background 0.3s ease, transform 0.3s ease;
+      }
+
+      .nav-links a:hover {
+        background: rgba(126, 87, 194, 0.35);
+        transform: translateY(-1px);
       }
 
       .container {
@@ -86,6 +140,42 @@
         font-size: 1.15em;
         font-weight: 300;
         letter-spacing: 0.5px;
+      }
+
+      .about-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(220px, 1fr));
+        gap: 16px;
+        margin-bottom: 28px;
+      }
+
+      .about-card {
+        scroll-margin-top: 110px;
+        border: 1px solid #d8e1ef;
+        border-radius: 12px;
+        padding: 18px;
+        background: linear-gradient(170deg, #f7faff 0%, #edf3fb 100%);
+        display: none;
+      }
+
+      .about-card.active {
+        display: block;
+        animation: slideInUp 0.5s ease-out;
+        grid-column: 1 / -1;
+        max-width: 500px;
+        margin: 0 auto;
+      }
+
+      .about-card h2 {
+        color: #1e3c72;
+        font-size: 1.05em;
+        margin-bottom: 8px;
+      }
+
+      .about-card p {
+        color: #445166;
+        font-size: 0.9em;
+        line-height: 1.45;
       }
 
       .controls {
@@ -465,12 +555,20 @@
       }
 
       @media (max-width: 1024px) {
+        body {
+          padding-top: 98px;
+        }
+
         .container {
           padding: 30px;
         }
 
         h1 {
           font-size: 2.2em;
+        }
+
+        .about-grid {
+          grid-template-columns: repeat(2, minmax(220px, 1fr));
         }
 
         .charts-grid {
@@ -487,17 +585,43 @@
       }
 
       @media (max-width: 768px) {
+        body {
+          padding: 132px 10px 10px;
+        }
+
+        .top-nav-inner {
+          padding: 10px 12px;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
+        }
+
+        .brand {
+          font-size: 0.85em;
+        }
+
+        .nav-links {
+          width: 100%;
+          justify-content: flex-start;
+          gap: 6px;
+        }
+
+        .nav-links a {
+          font-size: 0.75em;
+          padding: 8px 10px;
+        }
+
         .container {
           padding: 20px;
           border-radius: 12px;
         }
 
-        body {
-          padding: 10px;
-        }
-
         h1 {
           font-size: 1.6em;
+        }
+
+        .about-grid {
+          grid-template-columns: 1fr;
         }
 
         header {
@@ -587,6 +711,10 @@
       }
 
       @media (max-width: 480px) {
+        body {
+          padding-top: 150px;
+        }
+
         h1 {
           font-size: 1.3em;
         }
@@ -648,13 +776,45 @@
     </style>
   </head>
   <body>
-    <div class="container">
+    <nav class="top-nav" aria-label="Navegação principal">
+      <div class="top-nav-inner">
+        <div class="brand">CIESA | Dashboard de Mobilidade</div>
+        <div class="nav-links">
+          <a href="#about-dashboard">Dashboard</a>
+          <a href="#about-equipe">Equipe</a>
+          <a href="#about-projeto">Projeto</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container" id="dashboard">
       <header>
         <h1>📊 Dashboard de Deslocamento - Ciesa</h1>
         <p class="subtitle">
           Análise de Transporte, Custo Diário e Tempo dos Aluno(a)s
         </p>
       </header>
+
+      <section class="about-grid" aria-label="Sobre o dashboard">
+        <div class="about-card" id="about-dashboard">
+          <h2>Dashboard</h2>
+          <p>
+            Visualize dados de mobilidade estudantil em tempo real. Este painel consolida informações sobre meios de transporte, custos diários e tempo de deslocamento dos estudantes, oferecendo gráficos e tabelas detalhadas para análise rápida e eficiente.
+          </p>
+        </div>
+        <div class="about-card" id="about-equipe">
+          <h2>Equipe</h2>
+          <p>
+            Acadêmicos do 3º período de Análise e Desenvolvimento de Sistemas. Pedro Isaque e Luchie Bonates responsáveis pela coleta, processamento e análise de dados de mobilidade estudantil, fornecendo uma visão clara sobre padrões de deslocamento entre casa e faculdade.
+          </p>
+        </div>
+        <div class="about-card" id="about-projeto">
+          <h2>Projeto</h2>
+          <p>
+            O objetivo deste projeto é compreender os padrões de mobilidade dos estudantes entre casa e faculdade. Analisamos diferentes meios de transporte, custos mensais e tempos de deslocamento para identificar tendências e subsidiar decisões sobre políticas de mobilidade estudantil.
+          </p>
+        </div>
+      </section>
 
       <div class="error" id="errorMsg"></div>
       <div class="success" id="successMsg"></div>
@@ -729,6 +889,27 @@
       const DIAS_UTEIS = 22; // Dias úteis por mês
 
       let dadosRaw = [];
+
+      // Controla visibilidade dos cards about
+      document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const targetId = this.getAttribute('href');
+          const targetCard = document.querySelector(targetId);
+          
+          // Remove classe active de todos os cards
+          document.querySelectorAll('.about-card.active').forEach(card => {
+            card.classList.remove('active');
+          });
+          
+          // Adiciona classe active ao card alvo
+          if (targetCard) {
+            targetCard.classList.add('active');
+            // Scroll suave para o card
+            targetCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      });
 
       function showError(msg) {
         const el = document.getElementById("errorMsg");

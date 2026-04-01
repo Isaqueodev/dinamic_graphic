@@ -76,6 +76,45 @@
             "label": ["Inter"]
           },
           borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+          keyframes: {
+            fadeInUp: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' }
+            },
+            fadeInDown: {
+              '0%': { opacity: '0', transform: 'translateY(-20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' }
+            },
+            slideInLeft: {
+              '0%': { opacity: '0', transform: 'translateX(-40px)' },
+              '100%': { opacity: '1', transform: 'translateX(0)' }
+            },
+            slideInRight: {
+              '0%': { opacity: '0', transform: 'translateX(40px)' },
+              '100%': { opacity: '1', transform: 'translateX(0)' }
+            },
+            scaleIn: {
+              '0%': { opacity: '0', transform: 'scale(0.95)' },
+              '100%': { opacity: '1', transform: 'scale(1)' }
+            },
+            spin: {
+              '0%': { transform: 'rotate(0deg)' },
+              '100%': { transform: 'rotate(360deg)' }
+            },
+            pulse: {
+              '0%, 100%': { opacity: '1' },
+              '50%': { opacity: '0.8' }
+            }
+          },
+          animation: {
+            fadeInUp: 'fadeInUp 0.6s ease-out forwards',
+            fadeInDown: 'fadeInDown 0.6s ease-out forwards',
+            slideInLeft: 'slideInLeft 0.6s ease-out forwards',
+            slideInRight: 'slideInRight 0.6s ease-out forwards',
+            scaleIn: 'scaleIn 0.5s ease-out forwards',
+            spin: 'spin 1s linear infinite',
+            pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+          }
         },
       },
     }
@@ -117,6 +156,305 @@
 
     .nav-link.active::after {
       width: 100%;
+    }
+
+    /* ===== CSS das Animações dos Gráficos ===== */
+    #transportChart,
+    #costChart,
+    #timeChart,
+    #satisfactionChart {
+      animation: fadeInUp 0.8s ease-out forwards;
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateY(0) scale(1);
+    }
+
+    #transportChart {
+      animation-delay: 0.1s;
+    }
+
+    #costChart {
+      animation-delay: 0.2s;
+    }
+
+    #timeChart {
+      animation-delay: 0.3s;
+    }
+
+    #satisfactionChart {
+      animation-delay: 0.4s;
+    }
+
+    /* Hover effects nos gráficos */
+    .glass-card:has(#transportChart):hover #transportChart,
+    .glass-card:has(#costChart):hover #costChart,
+    .glass-card:has(#timeChart):hover #timeChart,
+    .glass-card:has(#satisfactionChart):hover #satisfactionChart {
+      transform: scale(1.02);
+      filter: drop-shadow(0 0 15px rgba(163, 166, 255, 0.4));
+    }
+
+    /* Cards dos gráficos com efeito glow */
+    #chartsSection .glass-card {
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #chartsSection .glass-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(163, 166, 255, 0.1) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+
+    #chartsSection .glass-card:hover::before {
+      opacity: 1;
+    }
+
+    #chartsSection .glass-card:hover {
+      border-color: rgba(163, 166, 255, 0.6);
+      box-shadow: 0 0 30px rgba(163, 166, 255, 0.2),
+        inset 0 0 20px rgba(163, 166, 255, 0.05);
+      transform: translateY(-6px);
+    }
+
+    /* Animação de Fade-in para a tabela */
+    #tableSection {
+      animation: fadeInUp 0.8s ease-out forwards;
+      animation-delay: 0.5s;
+    }
+
+    /* Animação de linhas da tabela */
+    #statsTable tr {
+      animation: slideInLeft 0.6s ease-out forwards;
+    }
+
+    #statsTable tr:nth-child(1) {
+      animation-delay: 0.6s;
+    }
+
+    #statsTable tr:nth-child(2) {
+      animation-delay: 0.65s;
+    }
+
+    #statsTable tr:nth-child(3) {
+      animation-delay: 0.7s;
+    }
+
+    #statsTable tr:nth-child(4) {
+      animation-delay: 0.75s;
+    }
+
+    #statsTable tr:nth-child(5) {
+      animation-delay: 0.8s;
+    }
+
+    #statsTable tr:nth-child(6) {
+      animation-delay: 0.85s;
+    }
+
+    #statsTable tr:nth-child(7) {
+      animation-delay: 0.9s;
+    }
+
+    #statsTable tr:nth-child(8) {
+      animation-delay: 0.95s;
+    }
+
+    #statsTable tr:nth-child(9) {
+      animation-delay: 1s;
+    }
+
+    #statsTable tr:nth-child(10) {
+      animation-delay: 1.05s;
+    }
+
+    /* ===== Hover Effects e Interações ===== */
+    /* Botão de Upload - Lift & Glow */
+    button {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateY(0);
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 28px rgba(163, 166, 255, 0.25);
+    }
+
+    button:active {
+      transform: translateY(-1px);
+    }
+
+    /* Glass Cards - Glow & Lift */
+    .glass-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateY(0);
+      border-color: rgba(163, 166, 255, 0.2);
+    }
+
+    .glass-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(163, 166, 255, 0.5);
+      box-shadow: 0 20px 40px rgba(163, 166, 255, 0.15),
+        inset 0 0 20px rgba(163, 166, 255, 0.05);
+    }
+
+    /* Nav Links - Color Transition */
+    .nav-link {
+      transition: color 0.3s ease;
+    }
+
+    .nav-link:hover {
+      color: #a3a6ff;
+    }
+
+    /* Tabela - Row Hover */
+    #statsTable tr {
+      transition: background-color 0.2s ease;
+    }
+
+    #statsTable tr:hover {
+      background-color: rgba(163, 166, 255, 0.12);
+      transform: scaleX(1.01);
+      box-shadow: inset 8px 0 0 rgba(163, 166, 255, 0.5);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #statsTable tr:hover td {
+      color: #a3a6ff;
+    }
+
+    /* KPI Cards */
+    .kpi-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: scale(1);
+    }
+
+    .kpi-card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 10px 30px rgba(163, 166, 255, 0.15);
+    }
+
+    /* Section Headings - Subtle Glow */
+    section h2,
+    section h3 {
+      transition: text-shadow 0.3s ease;
+    }
+
+    section:hover h2,
+    section:hover h3 {
+      text-shadow: 0 0 20px rgba(163, 166, 255, 0.3);
+    }
+
+    /* Textos dos gráficos com animação */
+    #chartsSection .glass-card h4 {
+      animation: fadeInUp 0.6s ease-out forwards;
+      opacity: 0;
+    }
+
+    #chartsSection .glass-card:nth-child(1) h4 {
+      animation-delay: 0.15s;
+    }
+
+    #chartsSection .glass-card:nth-child(2) h4 {
+      animation-delay: 0.25s;
+    }
+
+    #chartsSection .glass-card:nth-child(3) h4 {
+      animation-delay: 0.35s;
+    }
+
+    #chartsSection .glass-card:nth-child(4) h4 {
+      animation-delay: 0.45s;
+    }
+
+    /* ===== Loading States ===== */
+    .loader-spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid rgba(163, 166, 255, 0.2);
+      border-top-color: #a3a6ff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    .loader-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(6, 14, 32, 0.7);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      animation: fadeInUp 0.3s ease-out;
+    }
+
+    .loader-overlay.active {
+      display: flex;
+    }
+
+    .loader-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .loader-text {
+      color: #dee5ff;
+      font-size: 16px;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .loader-subtext {
+      color: #a3aac4;
+      font-size: 12px;
+    }
+
+    /* Efeito shimmer/brilho nos gráficos */
+    @keyframes shimmer {
+      0% {
+        background-position: -1000px 0;
+      }
+
+      100% {
+        background-position: 1000px 0;
+      }
+    }
+
+    #chartsSection .glass-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg,
+          transparent,
+          rgba(255, 255, 255, 0.1),
+          transparent);
+      background-size: 1000px 100%;
+      animation: shimmer 3s infinite;
+      pointer-events: none;
+      border-radius: 0.75rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    #chartsSection .glass-card:hover::after {
+      opacity: 1;
     }
   </style>
 </head>
@@ -164,7 +502,7 @@
         <span
           class="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider mb-6">Pesquisa
           Estatística</span>
-        <h2 class="font-headline text-5xl md:text-6xl font-extrabold text-white mb-6 leading-tight">
+        <h2 class="font-headline text-5xl md:text-6xl font-extrabold text-white mb-6 leading-tight animate-fadeInUp">
           Mapeando a Mobilidade dos Alunos CIESA
         </h2>
         <p class="text-xl text-slate-400 max-w-2xl mb-8 leading-relaxed">
@@ -174,7 +512,7 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-        <div class="glass-card rounded-xl border border-white/5 p-6">
+        <div class="glass-card rounded-xl border border-white/5 p-6 animate-fadeInUp" style="animation-delay: 0.1s;">
           <div class="flex items-center gap-3 mb-4">
             <div class="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center">
               <span class="material-symbols-outlined text-primary">people</span>
@@ -185,7 +523,7 @@
             não-probabilístico por conveniência.</p>
         </div>
 
-        <div class="glass-card rounded-xl border border-white/5 p-6">
+        <div class="glass-card rounded-xl border border-white/5 p-6 animate-fadeInUp" style="animation-delay: 0.2s;">
           <div class="flex items-center gap-3 mb-4">
             <div class="w-12 h-12 rounded-lg bg-secondary/20 flex items-center justify-center">
               <span class="material-symbols-outlined text-secondary">location_on</span>
@@ -196,7 +534,7 @@
             carona.</p>
         </div>
 
-        <div class="glass-card rounded-xl border border-white/5 p-6">
+        <div class="glass-card rounded-xl border border-white/5 p-6 animate-fadeInUp" style="animation-delay: 0.3s;">
           <div class="flex items-center gap-3 mb-4">
             <div class="w-12 h-12 rounded-lg bg-tertiary/20 flex items-center justify-center">
               <span class="material-symbols-outlined text-tertiary">insights</span>
@@ -286,7 +624,7 @@
             <h5 class="font-headline text-lg font-bold text-white mb-3">Meio de Transporte</h5>
             <ul class="text-sm text-slate-400 space-y-2">
               <li><strong class="text-white">Tipo:</strong> Qualitativa nominal</li>
-              <li><strong class="text-white">Categoria:</strong> Ônibus, carro próprio, a pé, moto, rides, carona</li>
+              <li><strong class="text-white">Categoria:</strong> Ônibus, carro próprio, a pé, moto, apps, carona</li>
               <li><strong class="text-white">Análise:</strong> Distribuição de frequências</li>
             </ul>
           </div>
@@ -387,6 +725,15 @@
       <div class="mb-12">
         <h2 class="font-headline text-4xl font-extrabold text-white tracking-tight mb-2">Dashboard Interativo</h2>
         <p class="text-slate-400 text-base">Visualização dinâmica dos dados com filtros e gráficos interativos</p>
+      </div>
+
+      <!-- Loading Overlay -->
+      <div id="loaderOverlay" class="loader-overlay">
+        <div class="loader-container">
+          <div class="loader-spinner"></div>
+          <div class="loader-text">Carregando dados...</div>
+          <div class="loader-subtext">Processando arquivo CSV</div>
+        </div>
       </div>
 
       <div id="emptyState" class="glass-card rounded-2xl border border-white/5 p-12 mb-8 text-center">
@@ -532,6 +879,165 @@
     </div>
   </section>
 
+  <!-- Análise Resumida -->
+  <section id="analysisSection" class="py-20 px-8 bg-gradient-to-b from-surface to-surface-container/30"
+    style="display: none;">
+    <div class="max-w-6xl mx-auto">
+      <div class="mb-16">
+        <h2 class="font-headline text-4xl font-extrabold text-white mb-4">Análise Resumida</h2>
+        <p class="text-slate-400 max-w-3xl">Principais conclusões e insights da pesquisa de mobilidade urbana</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <!-- Key Findings -->
+        <div class="glass-card rounded-xl border border-white/5 p-8">
+          <h3 class="font-headline text-2xl font-bold text-white mb-6">Principais Achados</h3>
+          <ul class="space-y-4">
+            <li class="flex gap-3">
+              <span class="text-primary font-bold text-xl">✓</span>
+              <div>
+                <p class="text-white font-semibold">Mobilidade Diversificada</p>
+                <p class="text-sm text-slate-400">6 modais diferentes utilizados pela população, indicando variedade nas
+                  escolhas de transporte</p>
+              </div>
+            </li>
+            <li class="flex gap-3">
+              <span class="text-secondary font-bold text-xl">✓</span>
+              <div>
+                <p class="text-white font-semibold">Tempo Concentrado</p>
+                <p class="text-sm text-slate-400">~45 minutos de média, com maioria dos deslocamentos de 30min-1h</p>
+              </div>
+            </li>
+            <li class="flex gap-3">
+              <span class="text-tertiary font-bold text-xl">✓</span>
+              <div>
+                <p class="text-white font-semibold">Satisfação Moderada</p>
+                <p class="text-sm text-slate-400">4/5 de média, indicando adequação geral mas com pontos de melhora</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="glass-card rounded-xl border border-white/5 p-8">
+          <h3 class="font-headline text-2xl font-bold text-white mb-6">Recomendações</h3>
+          <ul class="space-y-4">
+            <li class="flex gap-3">
+              <span class="text-primary font-bold text-xl">→</span>
+              <div>
+                <p class="text-white font-semibold">Melhorar Acesso</p>
+                <p class="text-sm text-slate-400">Focar em transporte público e ciclovias para reduzir tempo de
+                  deslocamento</p>
+              </div>
+            </li>
+            <li class="flex gap-3">
+              <span class="text-secondary font-bold text-xl">→</span>
+              <div>
+                <p class="text-white font-semibold">Subsidiar Transporte</p>
+                <p class="text-sm text-slate-400">Programas de vale-transporte para alunos de baixa renda</p>
+              </div>
+            </li>
+            <li class="flex gap-3">
+              <span class="text-tertiary font-bold text-xl">→</span>
+              <div>
+                <p class="text-white font-semibold">Expansão de Horários</p>
+                <p class="text-sm text-slate-400">Aumentar frequência de transporte público entre 7h-9h e 17h-19h</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Limitações -->
+      <div class="mt-12 p-8 rounded-xl border border-error/30 bg-error/5">
+        <div class="flex gap-3 mb-6">
+          <span class="text-error text-2xl font-bold">⚠</span>
+          <h3 class="font-headline text-2xl font-bold text-white">Limitações Encontradas</h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="flex gap-3">
+            <span class="text-error font-bold">•</span>
+            <div>
+              <p class="text-white font-semibold text-sm">Amostra Pequena</p>
+              <p class="text-xs text-slate-400">35 respondentes podem não representar completamente a população de
+                alunos CIESA</p>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <span class="text-error font-bold">•</span>
+            <div>
+              <p class="text-white font-semibold text-sm">Amostragem Não-Probabilística</p>
+              <p class="text-xs text-slate-400">Seleção por conveniência pode introduzir viés de seleção nos dados</p>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <span class="text-error font-bold">•</span>
+            <div>
+              <p class="text-white font-semibold text-sm">Dados Autorrelatados</p>
+              <p class="text-xs text-slate-400">Tempos e custos baseados em percepção do respondente, não medições
+                objetivas</p>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <span class="text-error font-bold">•</span>
+            <div>
+              <p class="text-white font-semibold text-sm">Período Único</p>
+              <p class="text-xs text-slate-400">Coleta em um único momento, sem variação sazonal ou temporal analisada
+              </p>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <span class="text-error font-bold">•</span>
+            <div>
+              <p class="text-white font-semibold text-sm">Falta de Contexto Socioeconômico</p>
+              <p class="text-xs text-slate-400">Não foram coletadas informações detalhadas sobre renda familiar ou
+                localidade</p>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <span class="text-error font-bold">•</span>
+            <div>
+              <p class="text-white font-semibold text-sm">Variáveis Limitadas</p>
+              <p class="text-xs text-slate-400">Apenas 3 dimensões analisadas; faltam segurança, conforto e qualidade do
+                serviço</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+        <div class="glass-card rounded-xl border border-white/5 p-6 text-center">
+          <p class="text-slate-400 text-sm mb-2">Maior Gasto</p>
+          <h4 class="font-headline text-2xl font-bold text-primary">R$ 200-300</h4>
+          <p class="text-xs text-slate-500 mt-2">Faixa modal mais frequente</p>
+        </div>
+
+        <div class="glass-card rounded-xl border border-white/5 p-6 text-center">
+          <p class="text-slate-400 text-sm mb-2">Modal Popular</p>
+          <h4 class="font-headline text-2xl font-bold text-secondary">Ônibus</h4>
+          <p class="text-xs text-slate-500 mt-2">Preferência da maioria</p>
+        </div>
+
+        <div class="glass-card rounded-xl border border-white/5 p-6 text-center">
+          <p class="text-slate-400 text-sm mb-2">Tempo Máximo</p>
+          <h4 class="font-headline text-2xl font-bold text-tertiary">2+ Horas</h4>
+          <p class="text-xs text-slate-500 mt-2">~5% do público</p>
+        </div>
+      </div>
+
+      <div class="mt-12 glass-card rounded-xl border border-white/5 p-8 bg-gradient-to-r from-primary/5 to-secondary/5">
+        <h4 class="font-headline text-lg font-bold text-white mb-3">Conclusão</h4>
+        <p class="text-slate-300 leading-relaxed">
+          A pesquisa revela uma população com mobil urbana diversificada, tendendo ao uso de transporte público
+          coletivo.
+          Embora os tempos de deslocamento sejam aceitáveis e o nível de satisfação moderado, há oportunidades para
+          melhoria em acessibilidade, custo e frequência de serviços. Investimentos em infraestrutura de transporte
+          público poderiam beneficiar significativamente a experiência de deslocamento dos alunos CIESA.
+        </p>
+      </div>
+    </div>
+  </section>
+
   <!-- Footer -->
   <footer class="w-full py-12 mt-20 border-t border-[#192540]/20 bg-[#060e20]">
     <div class="max-w-7xl mx-auto px-8">
@@ -605,6 +1111,9 @@
       const file = event.target.files[0];
       if (!file) return;
 
+      // Mostrar loader
+      document.getElementById('loaderOverlay').classList.add('active');
+
       const reader = new FileReader();
       reader.onload = function (e) {
         const csv = e.target.result;
@@ -615,6 +1124,7 @@
         if (globalData.length === 0) {
           alert('Erro ao carregar CSV. Verifique o arquivo.');
           console.error('Nenhum dado foi parseado do CSV');
+          document.getElementById('loaderOverlay').classList.remove('active');
           return;
         }
 
@@ -627,10 +1137,16 @@
         document.getElementById('kpiSection').style.display = 'grid';
         document.getElementById('chartsSection').style.display = 'grid';
         document.getElementById('tableSection').style.display = 'block';
+        document.getElementById('analysisSection').style.display = 'block';
 
         console.log('Atualizando dashboard...');
         updateDashboard();
         console.log('Dashboard atualizado com sucesso');
+
+        // Esconder loader com delay para visualizar a animação dos gráficos
+        setTimeout(() => {
+          document.getElementById('loaderOverlay').classList.remove('active');
+        }, 800);
       };
       reader.readAsText(file);
     }
@@ -890,8 +1406,8 @@
         'Carro próprio': 'Carro Próprio',
         'A pé': 'A Pé',
         'Moto': 'Moto',
-        'Aplicativos de transporte(Uber/99)': 'Rides',
-        'Aplicativos de transporte': 'Rides',
+        'Aplicativos de transporte(Uber/99)': 'Apps',
+        'Aplicativos de transporte': 'Apps',
         'Carona(com familiares, amigos)': 'Carona',
         'Carona': 'Carona'
       };
@@ -917,10 +1433,14 @@
         paper_bgcolor: 'rgba(0,0,0,0)',
         plot_bgcolor: 'rgba(0,0,0,0)',
         font: { color: '#dee5ff', family: 'Inter' },
-        showlegend: false
+        showlegend: false,
+        transition: {
+          duration: 800,
+          easing: 'cubic-in-out'
+        }
       };
 
-      Plotly.newPlot('transportChart', [trace], layout, { responsive: true, displayModeBar: false });
+      Plotly.react('transportChart', [trace], layout, { responsive: true, displayModeBar: false });
     }
 
     function updateCostChart() {
@@ -953,10 +1473,14 @@
         font: { color: '#dee5ff', family: 'Inter' },
         xaxis: { gridcolor: 'rgba(255,255,255,0.1)' },
         yaxis: { gridcolor: 'rgba(255,255,255,0.1)' },
-        showlegend: false
+        showlegend: false,
+        transition: {
+          duration: 800,
+          easing: 'cubic-in-out'
+        }
       };
 
-      Plotly.newPlot('costChart', [trace], layout, { responsive: true, displayModeBar: false });
+      Plotly.react('costChart', [trace], layout, { responsive: true, displayModeBar: false });
     }
 
     function updateTimeChart() {
@@ -992,10 +1516,14 @@
           tickangle: -45
         },
         yaxis: { gridcolor: 'rgba(255,255,255,0.1)' },
-        showlegend: false
+        showlegend: false,
+        transition: {
+          duration: 800,
+          easing: 'cubic-in-out'
+        }
       };
 
-      Plotly.newPlot('timeChart', [trace], layout, { responsive: true, displayModeBar: false });
+      Plotly.react('timeChart', [trace], layout, { responsive: true, displayModeBar: false });
     }
 
     function updateSatisfactionChart() {
@@ -1030,10 +1558,14 @@
         paper_bgcolor: 'rgba(0,0,0,0)',
         plot_bgcolor: 'rgba(0,0,0,0)',
         font: { color: '#dee5ff', family: 'Inter' },
-        showlegend: false
+        showlegend: false,
+        transition: {
+          duration: 800,
+          easing: 'cubic-in-out'
+        }
       };
 
-      Plotly.newPlot('satisfactionChart', [trace], layout, { responsive: true, displayModeBar: false });
+      Plotly.react('satisfactionChart', [trace], layout, { responsive: true, displayModeBar: false });
     }
 
     // Update Stats Table
@@ -1126,12 +1658,16 @@
       console.log('🔄 Tentando carregar CSV de: ' + csvFileName);
       console.log('   URL completa: ' + window.location.origin + window.location.pathname + csvFileName);
 
+      // Mostrar loader
+      document.getElementById('loaderOverlay').classList.add('active');
+
       fetch(csvFileName)
         .then(response => {
           console.log('📡 Resposta fetch: status=' + response.status);
           if (!response.ok) {
             console.error('❌ Erro HTTP ' + response.status + ': ' + response.statusText);
             console.log('   Tente fazer upload manual do arquivo CSV no dashboard');
+            document.getElementById('loaderOverlay').classList.remove('active');
             return null;
           }
           return response.text();
@@ -1139,6 +1675,7 @@
         .then(csv => {
           if (!csv) {
             console.error('❌ Resposta vazia do servidor');
+            document.getElementById('loaderOverlay').classList.remove('active');
             return;
           }
 
@@ -1154,6 +1691,7 @@
             document.getElementById('kpiSection').style.display = 'grid';
             document.getElementById('chartsSection').style.display = 'grid';
             document.getElementById('tableSection').style.display = 'block';
+            document.getElementById('analysisSection').style.display = 'block';
 
             // Atualizar visualizações
             updateDashboard();
@@ -1161,8 +1699,14 @@
 
             // Dispatch event
             window.dispatchEvent(new Event('csvLoaded'));
+
+            // Esconder loader com delay
+            setTimeout(() => {
+              document.getElementById('loaderOverlay').classList.remove('active');
+            }, 800);
           } else {
             console.error('❌ Nenhum registro parseado do CSV');
+            document.getElementById('loaderOverlay').classList.remove('active');
           }
         })
         .catch(error => {
@@ -1174,17 +1718,61 @@
           console.log('   1. Verifique se o arquivo CSV existe no repositório');
           console.log('   2. Use o botão "Carregar CSV" no topo para upload manual');
           console.log('   3. No GitHub Pages, o arquivo pode estar em: /dinamic_graphic/Pesquisa_...');
+          document.getElementById('loaderOverlay').classList.remove('active');
         });
     }
 
     // Carregar CSV automaticamente quando página está pronta
-    if (document.readyState === 'complete') {
-      setTimeout(autoLoadCSV, 500);
-    } else {
-      window.addEventListener('load', () => {
-        setTimeout(autoLoadCSV, 500);
+    // DESABILITADO: Deixando que o usuário importe manualmente
+    // if (document.readyState === 'complete') {
+    //   setTimeout(autoLoadCSV, 500);
+    // } else {
+    //   window.addEventListener('load', () => {
+    //     setTimeout(autoLoadCSV, 500);
+    //   });
+    // }
+
+    // ===== FASE 3: Intersection Observer para Animações ao Scroll =====
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver(function (entries) {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          // Remover opacity-0 para mostrar elemento
+          entry.target.classList.remove('opacity-0');
+          // Adicionar classe de animação
+          if (!entry.target.classList.contains('animate-fadeInUp')) {
+            entry.target.classList.add('animate-fadeInUp');
+          }
+          // Parar de observar após animação
+          observer.unobserve(entry.target);
+        }
       });
-    }
+    }, observerOptions);
+
+    // Observar todos os glass-cards
+    document.querySelectorAll('.glass-card').forEach(el => {
+      el.classList.add('opacity-0');
+      observer.observe(el);
+    });
+
+    // Observar seções (headings e parágrafos descritivos)
+    document.querySelectorAll('section').forEach((section) => {
+      const heading = section.querySelector('h2, h3, h4');
+      if (heading && !heading.classList.contains('animate-fadeInUp')) {
+        heading.classList.add('opacity-0');
+        observer.observe(heading);
+      }
+
+      const paragraph = section.querySelector('p:first-of-type');
+      if (paragraph) {
+        paragraph.classList.add('opacity-0');
+        observer.observe(paragraph);
+      }
+    });
   </script>
 
 </body>
